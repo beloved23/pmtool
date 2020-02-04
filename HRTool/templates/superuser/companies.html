@@ -1,0 +1,188 @@
+{% extends 'admin-base.html' %}
+{% load static %}
+{% block styles %}
+    <link rel="stylesheet" href="{% static 'theme/vendor/sweetalert/sweetalert.css' %}"/>
+{% endblock %}
+{% block content %}
+{#    <h4>Companies</h4>#}
+{#    <a href="{% url 'superuser:add-company' %}">Add Company</a>#}
+{#    <table>#}
+{#        <tr>#}
+{#            <th>#</th>#}
+{#            <th>Name</th>#}
+{#            <th>Identifier</th>#}
+{#            <th>Plan</th>#}
+{#            <th>Status</th>#}
+{#            <th>Date Created</th>#}
+{#            <th>Last Updated</th>#}
+{#            <th>Actions</th>#}
+{#        </tr>#}
+{#        {% for company in company_list %}#}
+{#            <tr>#}
+{#                <td>{{ forloop.counter }}</td>#}
+{#                <td><a href="{{ company.get_absolute_url }}">{{ company.name | title }}</a></td>#}
+{#                <td>{{ company.identifier | upper }}</td>#}
+{#                <td>{{ company.plan }}</td>#}
+{#                <td>#}
+{#                    {% if company.is_active %}#}
+{#                        Active#}
+{#                    {% else %}#}
+{#                        Inactive#}
+{#                    {% endif %}#}
+{#                </td>#}
+{#                <td>#}
+{#                    {{ company.date_created | date:"F d, Y H:i" }}#}
+{#                </td>#}
+{#                <td>#}
+{#                    {{ company.date_updated | date:"F d, Y H:i" }}#}
+{#                </td>#}
+{#                <td>#}
+{#                    <a href="{% url 'superuser:edit-company' pk=company.pk %}">Edit</a> |#}
+{#                    <a href="{% url 'superuser:toggle-company-status' pk=company.pk %}">#}
+{#                        {% if company.is_active %}#}
+{#                            Deactivate#}
+{#                        {% else %}#}
+{#                            Activate#}
+{#                        {% endif %}#}
+{#                    </a> |#}
+{#                    <a href="{% url 'superuser:delete-company' pk=company.pk %}">Delete</a>#}
+{#                </td>#}
+{#            </tr>#}
+{#        {% endfor %}#}
+{#    </table>#}
+    <div class="block-header">
+        <div class="row">
+            <div class="col-lg-4 col-md-3 col-sm-12">
+                <h2><a href="{% url 'superuser:dashboard' %}" class="btn btn-xs btn-link btn-toggle-fullwidth">
+                    <i class="fa fa-arrow-left"></i></a> Companies
+                </h2>
+                <ul class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'superuser:dashboard' %}"><i class="icon-home"></i></a></li>
+                    <li class="breadcrumb-item">Companies</li>
+                    <li class="breadcrumb-item active">List</li>
+                </ul>
+            </div>
+            <div class="col-lg-8 col-md-9 col-sm-12 text-right">
+                <div class="row">
+                    <div class="col-lg-6 col-sm-12" style="visibility: hidden;">
+                        <div class="input-group mb-3 mt-3">
+                            <input type="text" class="form-control" placeholder="Company's name" aria-label="Company's name" aria-describedby="basic-addon2">
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-secondary" type="button">Search</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-sm-12">
+                        <div class="input-group mb-3 mt-3">
+                            <select class="custom-select" id="inputGroupSelect04" style="visibility: hidden;">
+                                <option selected="">Filter By:</option>
+                                <option value="Active">Active Status</option>
+                                <option value="Inactive">Inactive Status</option>
+                                {% for plan in plans %}
+                                    <option value="{{ plan }}">{{ plan }}</option>
+                                {% endfor %}
+                            </select>
+                            <div class="input-group-append">
+                                <a class="btn btn-default"  href="{% url 'superuser:add-company' %}">Add Company</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row clearfix">
+        {% for company in company_list %}
+            <div class="col-lg-3 col-md-6 col-sm-12">
+                <div class="card">
+                    <div class="body text-center">
+                        <div class="chart easy-pie-chart-1" data-percent="{{ company.get_plan_usage }}">
+                            <span>
+                                {% if company.config.logo %}
+                                    <img src="{{ company.config.logo.url }}" alt="company" class="rounded-circle"/>
+                                {% else %}
+                                    <img src="{% static 'theme/images/sm/avatar1.jpg' %}" alt="user" class="rounded-circle"/>
+                                {% endif %}
+                            </span>
+                        </div>
+                        <h5>{{ company.name | title }}</h5>
+                        <small>{{ company.config.plan }}</small>
+                        <br>
+                        {% if company.is_active %}
+                            <span class="badge badge-success">Active</span>
+                        {% else %}
+                            <span class="badge badge-danger">Inactive</span>
+                        {% endif %}
+
+                        <div class="m-t-15">
+                            <button onclick="window.location.href='{{ company.get_absolute_url }}'" class="btn btn-sm btn-default">View</button>
+                            {% if company.is_active %}
+                                <button onclick="showAlert('Once you deactivate \'{{ company }}\', her members would not be able to login again.', '{% url 'superuser:toggle-company-status' pk=company.pk %}')" class="btn btn-sm btn-danger">Deactivate</button>
+                            {% else %}
+                                <button onclick="showAlert('Once you activate \'{{ company }}\', her members would be able to login.', '{% url 'superuser:toggle-company-status' pk=company.pk %}')" class="btn btn-sm btn-success">Activate</button>
+                            {% endif %}
+                        </div>
+                        <ul class="social-links list-unstyled">
+                            <li><button onclick="showAlert('Once you delete \'{{ company }}\', her members and everything associated to the company would be permanently deleted.', '{% url 'superuser:delete-company' pk=company.pk %}')" class="btn btn-light text-danger">Delete</button></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+        {% if is_paginated %}
+            <div class="col-sm-12">
+                <ul class="pagination pagination-default">
+                    {% if page_obj.has_previous %}
+                        <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a></li>
+                    {% endif %}
+                    {% for page in paginator %}
+                        <li class="page-item {% if page_obj == page %}active{% endif %}">
+                            <a class="page-link" href="?page={{ page }}">{{ page }}</a>
+                        </li>
+                    {% endfor %}
+                    {% if page_obj.has_next %}
+                        <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Previous</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}
+{% block scripts %}
+    <script src="{% static 'theme/bundles/easypiechart.bundle.js' %}"></script>
+    <script>
+        function showAlert(message, url){
+            swal({
+              title: "Are you sure?",
+              text: message,
+              icon: "warning",
+              buttons: true,
+              dangerMode: true,
+            })
+            .then((willDelete) => {
+              if (willDelete) {
+                return fetch(url);
+              }
+            }).then(results => {
+                if (results){
+                    swal({
+                      title: "Success",
+                      text: "Operation successful!",
+                      icon: "success",
+                      button: "Close",
+                    });
+                    window.location.reload();
+                }
+            }).catch(err => {
+              if (err) {
+                swal("Oops!", "Something went wrong while performing your request", "error");
+              } else {
+                swal.stopLoading();
+                swal.close();
+              }
+            });
+        }
+    </script>
+{% endblock %}
+{# 1130410144 polaris #}

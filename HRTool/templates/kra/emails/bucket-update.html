@@ -1,0 +1,47 @@
+{% extends 'email.base.html' %}
+{% block content %}
+    <h1>Hi {{ user.first_name }},</h1>
+    <p>
+        KRA Setting for {{ bucket.title }} is now
+        {% if bucket.status == 'Open' and bucket.allow_final_assessment %}
+            <b>open</b> for final assessment
+        {% elif bucket.status == 'Open' and bucket.allow_self_assessment %}
+            <b>open</b> for self assessment
+        {% elif bucket.status == 'Open' %}
+            <b>open</b>
+        {% else %}
+            <b>closed</b>
+        {% endif %}.
+    </p>
+    <p>
+        Please use the button below to access your KRA management page for next action.
+    </p>
+    <table class="action" align="center" width="100%" cellpadding="0" cellspacing="0" role="presentation">
+        <tr>
+            <td align="center">
+                <table width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation">
+                    <tr>
+                        <td align="center">
+                            <table border="0" cellpadding="0" cellspacing="0" role="presentation">
+                                <tr>
+                                    <td>
+                                        <a href="{{ request.scheme }}://{{ request.META.HTTP_HOST }}{% url 'kra:management' reference=bucket.reference %}" class="button button-primary" target="_blank">Manage KRA</a>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+    <table class="subcopy" width="100%" cellpadding="0" cellspacing="0" role="presentation">
+        <tr>
+            <td>
+                If you’re having trouble clicking the "Manage KRA" button,
+                copy and paste the URL below into your web browser:
+                <a href="{{ request.scheme }}://{{ request.META.HTTP_HOST }}{% url 'kra:management' reference=bucket.reference %}">{{ request.scheme }}://{{ request.META.HTTP_HOST }}{% url 'kra:management' reference=bucket.reference %}</a>
+            </td>
+        </tr>
+    </table>
+{% endblock %}

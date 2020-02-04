@@ -1,0 +1,64 @@
+{% extends 'admin-base.html' %}
+{% block content %}
+    <div class="block-header">
+        <div class="row">
+            <div class="col-lg-6 col-md-8 col-sm-12">
+                <h2>Manage Plans</h2>
+                <ul class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'superuser:dashboard' %}"><i class="icon-home"></i></a></li>
+                    <li class="breadcrumb-item active">Manage Plans</li>
+                </ul>
+            </div>
+            <div class="col-lg-6 col-md-4 col-sm-12 text-right">
+                <a href="{% url 'superuser:add-plans' %}" class="btn btn-default">Add Plans</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row clearfix">
+        <div class="col-lg-12 col-md-12">
+            <div class="card planned_task">
+                <div class="header">
+                    <h2>Plans</h2>
+                </div>
+                <div class="body">
+                    <table class="table table-striped">
+                        <tr>
+                            <th>#</th>
+                            <th>Name</th>
+                            <th>Is Flexible</th>
+                            <th>Maximum Staff</th>
+                            <th>Date Created</th>
+                            <th>Date Updated</th>
+                            <th></th>
+                        </tr>
+                        {% for plan in plan_list %}
+                            <tr>
+                                <td>{{ forloop.counter }}</td>
+                                <td>{{ plan.name }}</td>
+                                <td>
+                                    {% if plan.is_flexible %}
+                                        <i class="fa fa-check text-success"></i>
+                                    {% else %}
+                                        <i class="fa fa-times text-danger"></i>
+                                    {% endif %}
+                                </td>
+                                <td>{{ plan.threshold }}</td>
+                                <td>
+                                    {{ plan.date_created | date:"F d, Y H:i" }}
+                                </td>
+                                <td>
+                                    {{ plan.date_updated | date:"F d, Y H:i" }}
+                                </td>
+                                <td>
+                                    <a href="{% url 'superuser:edit-plan' pk=plan.pk %}" class="btn btn-default">Edit</a>
+                                    <a href="{% url 'superuser:delete-plan' pk=plan.pk %}" class="btn btn-danger">Delete</a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

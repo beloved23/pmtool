@@ -1,0 +1,322 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load widget_tweaks %}
+{% block pre_styles %}
+    <link rel="stylesheet" href="{% static 'theme/vendor/fullcalendar/fullcalendar.min.css' %}">
+{% endblock %}
+{% block styles %}
+    <!-- Select2 -->
+    <link rel="stylesheet" href="{% static 'theme/vendor/select2/select2.css' %}" />
+{% endblock %}
+{% block content %}
+    <div class="block-header">
+        <div class="row">
+            <div class="col-lg-5 col-md-8 col-sm-12">
+                <h2>
+                    <a href="javascript:void(0);" class="btn btn-xs btn-link btn-toggle-fullwidth">
+                        <i class="fa fa-arrow-left"></i>
+                    </a>
+                    Tasks
+                </h2>
+                <ul class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'dashboard' %}"><i class="icon-home"></i></a></li>
+                    <li class="breadcrumb-item active">Tasks</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="row clearfix">
+        <div class="col-lg-12 col-md-12">
+            <div class="card planned_task">
+                <div class="header">
+                    <h2>Tasks</h2>
+                </div>
+                <div class="body">
+                    <div class="row">
+                        <div class="col-lg-8">
+                            <div class="card">
+                                <div class="body">
+                                    <div id="calendar"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="card">
+                                <div class="body">
+                                    <button type="button" class="btn btn-outline-dark btn-block" data-toggle="modal" data-target="#addtask">Add New Task</button>
+                                </div>
+                            </div>
+                            <div class="card profile-header">
+                                <div class="body" style="height: 500px; max-height: 500px;">
+                                    <div class="text-center">
+                                        <div class="progress progress-xs m-b-25 m-t-25">
+                                            <div class="progress-bar" role="progressbar" aria-valuenow="{{ user.profile.get_tasks_progress | floatformat:0 }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ user.profile.get_tasks_progress | floatformat:0 }}%;">
+                                                <span class="sr-only">{{ user.profile.get_tasks_progress | floatformat:0 }}% Complete</span>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-sm-12">
+                                                <ul class="nav nav-tabs">
+                                                    <li class="nav-item"><a class="nav-link active show" data-toggle="tab" href="#tab1">
+                                                        <h6>{{ user.profile.completed_tasks.count }}</h6>
+                                                        <span>Completed</span>
+                                                    </a></li>
+                                                    <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#tab2">
+                                                        <h6>{{ user.profile.pending_tasks.count }}</h6>
+                                                        <span>ToDo</span>
+                                                    </a></li>
+                                                    <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#tab3">
+                                                        <h6>{{ user.profile.tasks.count }}</h6>
+                                                        <span>All Tasks</span>
+                                                    </a></li>
+                                                </ul>
+                                                <div class="tab-content">
+                                                    <div class="tab-pane show active" id="tab1">
+                                                        <ul class="list-unstyled feeds_widget">
+                                                            {% for task in user.profile.completed_tasks %}
+                                                                <li onclick='viewTask("{{ task.title }}", "{{ task.created_by }}", "{{ task.assigned_to }}", `{{ task.content | linebreaks }}`, "{{ task.duration }}hour{{ task.duration | pluralize }}", "{{ task.date_created | date:"F d, Y h:i A" }}", "{{ task.date_updated | date:"F d, Y h:i A" }}", "{{ task.status }}", "{% url 'task:update' reference=task.reference %}", "{% if task.status == 'Completed' %}text-success{% elif task.status == 'Cancelled' %}text-danger{% elif task.out_of_time %}text-warning{% else %}text-primary{% endif %}");'>
+                                                                    <div class="feeds-left"><i class="fa fa-thumbs-o-up"></i></div>
+                                                                    <div class="feeds-body">
+                                                                        <h4 class="title">{{ task.title | title }} <small class="float-right text-muted">{{ task.date_created | timesince:now }}</small></h4>
+                                                                        <small>{{ task.content | truncatewords:"10" }}</small>
+                                                                        <small class={% if task.status == 'Completed' %}'text-success'{% elif task.status == 'Cancelled' %}'text-danger'{% elif task.out_of_time %}'text-warning'{% else %}'text-primary'{% endif %}>
+                                                                            {{ task.status }}
+                                                                        </small>
+                                                                    </div>
+                                                                </li>
+                                                            {% empty %}
+                                                                <p>You do not have a completed task yet</p>
+                                                            {% endfor %}
+                                                        </ul>
+                                                    </div>
+                                                    <div class="tab-pane" id="tab2">
+                                                        <ul class="list-unstyled feeds_widget">
+                                                            {% for task in user.profile.pending_tasks %}
+                                                                <li onclick='viewTask("{{ task.title }}", "{{ task.created_by }}", "{{ task.assigned_to }}", `{{ task.content | linebreaks }}`, "{{ task.duration }}hour{{ task.duration | pluralize }}", "{{ task.date_created | date:"F d, Y h:i A" }}", "{{ task.date_updated | date:"F d, Y h:i A" }}", "{{ task.status }}", "{% url 'task:update' reference=task.reference %}", "{% if task.status == 'Completed' %}text-success{% elif task.status == 'Cancelled' %}text-danger{% elif task.out_of_time %}text-warning{% else %}text-primary{% endif %}");'>
+                                                                    <div class="feeds-left"><i class="fa fa-thumbs-o-up"></i></div>
+                                                                    <div class="feeds-body">
+                                                                        <h4 class="title">{{ task.title | title }} <small class="float-right text-muted">{{ task.date_created | timesince:now }}</small></h4>
+                                                                        <small>{{ task.content | truncatewords:"10" }}</small>
+                                                                        <small class={% if task.status == 'Completed' %}'text-success'{% elif task.status == 'Cancelled' %}'text-danger'{% elif task.out_of_time %}'text-warning'{% else %}'text-primary'{% endif %}>
+                                                                            {{ task.status }}
+                                                                        </small>
+                                                                    </div>
+                                                                </li>
+                                                            {% empty %}
+                                                                <p>You do not have a task todo yet</p>
+                                                            {% endfor %}
+                                                        </ul>
+                                                    </div>
+                                                    <div class="tab-pane" id="tab3">
+                                                        <ul class="list-unstyled feeds_widget">
+                                                            {% for task in user.profile.tasks %}
+                                                                <li onclick='viewTask("{{ task.title }}", "{{ task.created_by }}", "{{ task.assigned_to }}", `{{ task.content | linebreaks }}`, "{{ task.duration }}hour{{ task.duration | pluralize }}", "{{ task.date_created | date:"F d, Y h:i A" }}", "{{ task.date_updated | date:"F d, Y h:i A" }}", "{{ task.status }}", "{% url 'task:update' reference=task.reference %}", "{% if task.status == 'Completed' %}text-success{% elif task.status == 'Cancelled' %}text-danger{% elif task.out_of_time %}text-warning{% else %}text-primary{% endif %}");'>
+                                                                    <div class="feeds-left"><i class="fa fa-thumbs-o-up"></i></div>
+                                                                    <div class="feeds-body">
+                                                                        <h4 class="title">{{ task.title | title }} <small class="float-right text-muted">{{ task.date_created | timesince:now }}</small></h4>
+                                                                        <small>{{ task.content | truncatewords:"10" }}</small>
+                                                                        <small class={% if task.status == 'Completed' %}'text-success'{% elif task.status == 'Cancelled' %}'text-danger'{% elif task.out_of_time %}'text-warning'{% else %}'text-primary'{% endif %}>
+                                                                            {{ task.status }}
+                                                                        </small>
+                                                                    </div>
+                                                                </li>
+                                                            {% empty %}
+                                                                <p>You do not have a task yet</p>
+                                                            {% endfor %}
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Default Size -->
+    <div class="modal fade" id="addtask" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <form action="" method="post" role="form">
+                    {% csrf_token %}
+                    <div class="modal-header">
+                        <h4 class="title" id="defaultModalLabel">Add Task</h4>
+                    </div>
+                    <div class="modal-body">
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                {{ form.non_field_errors.as_ul }}
+                            </div>
+                        {% endif %}
+                        {% for field in form %}
+                            <div class="form-group">
+                                <div class="form-line">
+                                    {% if field == form.content %}
+                                        {% render_field field placeholder=field.label class+="form-control no-resize" rows="5" style+="resize: none;" %}
+                                    {% elif field == form.assigned_to %}
+                                        {% render_field field data-placeholder=field.label class+="form-control show-tick ms select2" %}
+                                    {% else %}
+                                        {% render_field field placeholder=field.label class+="form-control" %}
+                                    {% endif %}
+                                    {% if field.help_text %}
+                                        <small>{{ field.help_text }}</small>
+                                    {% endif %}
+                                    {% if field.errors %}
+                                        <div class="alert alert-danger">
+                                            {{ field.errors.as_ul }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Create</button>
+                        <button type="button" class="btn btn-simple" data-dismiss="modal">Close</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Default Size -->
+    <div class="modal fade" id="viewtask" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="title" id="defaultModalLabel">View Task</h4>
+                </div>
+                <div class="modal-body">
+                    <table class="table table-striped">
+                        <tr>
+                            <th class="text-center">Created By:</th>
+                            <td class="text-center" id="created_by"></td>
+                        </tr>
+                        <tr>
+                            <th class="text-center">Assigned To:</th>
+                            <td class="text-center" id="assigned_to"></td>
+                        </tr>
+                        <tr>
+                            <th class="text-center">Title:</th>
+                            <td class="text-center" id="title"></td>
+                        </tr>
+                        <tr>
+                            <th class="text-center">Description:</th>
+                            <td class="text-center" id="description"></td>
+                        </tr>
+                        <tr>
+                            <th class="text-center">Duration:</th>
+                            <td class="text-center" id="duration"></td>
+                        </tr>
+                        <tr>
+                            <th class="text-center">Date Created:</th>
+                            <td class="text-center" id="date_created"></td>
+                        </tr>
+                        <tr>
+                            <th class="text-center">Date Updated:</th>
+                            <td class="text-center" id="date_updated"></td>
+                        </tr>
+                        <tr>
+                            <th class="text-center">Status:</th>
+                            <td class="text-center" id="status"></td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button id="cancelTaskBtn" onclick="showAlert(this, 'Are you sure you want to cancel this task?')" type="button" class="btn btn-danger">Cancel Task</button>
+                    <button id="completeTaskBtn" onclick="showAlert(this, 'Are you sure you want to mark this task as completed?')" type="button" class="btn btn-primary">Mark as completed</button>
+                    <button type="button" class="btn btn-simple" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+{% block scripts %}
+    <script src="{% static 'theme/bundles/fullcalendarscripts.bundle.js' %}"></script><!--/ calender javascripts -->
+    <script src="{% static 'theme/vendor/fullcalendar/fullcalendar.js' %}"></script><!--/ calender javascripts -->
+    <script>
+
+        function viewTask(title, created_by, assigned_to, description, duration, date_created, date_updated, status, url, cls) {
+            $("#viewtask #title").text(title);
+            $("#viewtask #created_by").text(created_by);
+            $("#viewtask #assigned_to").text(assigned_to);
+            $("#viewtask #description").html(description);
+            $("#viewtask #duration").text(duration);
+            $("#viewtask #date_created").text(date_created);
+            $("#viewtask #date_updated").text(date_updated);
+            $("#viewtask #status").html("<span class='"+cls+"'>"+status+"</span>");
+            if (status != "Pending"){
+                $("#viewtask #cancelTaskBtn").hide();
+                $("#viewtask #completeTaskBtn").hide();
+            }else{
+                $("#viewtask #cancelTaskBtn").attr("data-url", url+"?status=Cancelled");
+                $("#viewtask #completeTaskBtn").attr("data-url", url+"?status=Completed");
+                $("#viewtask #cancelTaskBtn").show();
+                $("#viewtask #completeTaskBtn").show();
+            }
+            $("#viewtask").modal();
+        }
+        let TODAY = "{% now 'Y-m-d' %}";
+        let TASKS = [
+            {% for task in tasks %}
+                {
+                    title: '{{ task.title }}',
+                    url: 'javascript:viewTask("{{ task.title }}", "{{ task.created_by }}", "{{ task.assigned_to }}", `{{ task.content | linebreaks }}`, "{{ task.duration }}hour{{ task.duration | pluralize }}", "{{ task.date_created | date:"F d, Y h:i A" }}", "{{ task.date_updated | date:"F d, Y h:i A" }}", "{{ task.status }}", "{% url 'task:update' reference=task.reference %}", "{% if task.status == 'Completed' %}text-success{% elif task.status == 'Cancelled' %}text-danger{% elif task.out_of_time %}text-warning{% else %}text-primary{% endif %}");',
+                    start: '{{ task.date_created | date:"Y-m-d\TH:i:s" }}',
+                    end: '{{ task.end_time | date:"Y-m-d\TH:i:s" }}',
+                    className: {% if task.status == 'Completed' %}'bg-success'{% elif task.status == 'Cancelled' %}'bg-danger'{% elif task.out_of_time %}'bg-warning'{% else %}'bg-primary'{% endif %}
+                }
+                {% if not forloop.last %},{% endif %}
+            {% endfor %}
+        ];
+    </script>
+    <script src="{% static 'theme/js/pages/calendar.js' %}"></script><!--/ calender javascripts -->
+    <script src="{% static 'theme/vendor/select2/select2.min.js' %}"></script> <!-- Select2 Js -->
+    <script>
+        $(function (){
+           $('.select2').select2();
+        });
+        function showAlert($this, message){
+            $this = $($this);
+            console.log($this.data("url"));
+            swal({
+              title: "Are you sure?",
+              text: message,
+              icon: "warning",
+              buttons: true,
+              dangerMode: true,
+            })
+            .then((willDelete) => {
+              if (willDelete) {
+                  resp = fetch($this.data("url"));
+                  return resp;
+              }
+            }).then(results => {
+                if (results){
+                    swal({
+                      title: "Success",
+                      text: "Operation successful!",
+                      icon: "success",
+                      button: "Close",
+                    }).then(function (){
+                        window.location.reload();
+                    });
+                }
+            }).catch(err => {
+              if (err) {
+                swal("Oops!", "Something went wrong while performing your request", "error");
+              } else {
+                swal.stopLoading();
+                swal.close();
+              }
+            });
+        }
+    </script>
+{% endblock %}

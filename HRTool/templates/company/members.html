@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+    <div class="block-header">
+        <div class="row">
+            <div class="col-lg-5 col-md-8 col-sm-12">
+                <h2>
+                    <a href="javascript:void(0);" class="btn btn-xs btn-link btn-toggle-fullwidth">
+                        <i class="fa fa-arrow-left"></i>
+                    </a>
+                    Manage Members
+                </h2>
+                <ul class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'dashboard' %}"><i class="icon-home"></i></a></li>
+                    <li class="breadcrumb-item active">Manage Members</li>
+                </ul>
+            </div>
+            <div class="col-lg-7 col-md-4 col-sm-12 text-right">
+                {% if perms.company.can_add_profile  or user.is_staff %}
+                    <a href="{% url 'company:add-members' %}" class="btn btn-default">Add Members</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="row clearfix">
+        <div class="col-lg-12 col-md-12">
+            <div class="card planned_task">
+                <div class="header">
+                    <h2>Members</h2>
+                </div>
+                <div class="body">
+                    <div class="table-responsive">
+                        <table class="table table-striped" role="table">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th></th>
+                                    <th>Name</th>
+                                    <th>Username</th>
+                                    <th>Manager</th>
+                                    <th>Date Created</th>
+                                    {% if perms.account.can_view_profile or perms.account.can_add_profile or perms.account.can_delete_profile or user.is_staff %}
+                                        <th>Actions</th>
+                                    {% endif %}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for member in profile_list %}
+                                    <tr>
+                                        <td>{{ forloop.counter }}</td>
+                                        <td>
+                                            <img class="rounded-circle user-photo" width="80px" height="80px" src="{{ member.photo.url }}" alt="{{ member.user.get_full_name }}'s Photo">
+                                        </td>
+                                        <td>{{ member.user.get_full_name | title }}</td>
+                                        <td>{{ member.auuid | upper }}</td>
+
+                                        <td>
+                                            {% if member.manager %}
+                                                {{ member.manager.user.get_full_name | upper }} ({{ member.manager.auuid | upper }})
+                                            {% else %}
+                                                -
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ member.date_created | date:"F d, Y H:i" }}</td>
+                                        {% if perms.account.can_view_profile or perms.account.can_add_profile or perms.account.can_delete_profile or user.is_staff %}
+                                            <td>
+                                                <a class="btn btn-outline-dark" href="{% url 'company:view-member' pk=member.pk %}">View</a>
+                                                {% if perms.account.can_add_profile or user.is_staff %}
+                                                    <a class="btn btn-default" href="{% url 'company:edit-member' pk=member.pk %}">Edit</a>
+                                                {% endif %}
+                                                {% if perms.account.can_delete_profile or user.is_staff %}
+                                                    <a class="btn btn-danger" href="{% url 'company:delete-member' pk=member.user.pk %}">Delete</a>
+                                                {% endif %}
+                                            </td>
+                                        {% endif %}
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

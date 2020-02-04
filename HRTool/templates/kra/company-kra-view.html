@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+{% load static %}
+{% block content %}
+    <div class="block-header">
+        <div class="row">
+            <div class="col-lg-5 col-md-8 col-sm-12">
+                <h2>
+                    <a href="javascript:void(0);" class="btn btn-xs btn-link btn-toggle-fullwidth">
+                        <i class="fa fa-arrow-left"></i>
+                    </a>
+                    View Company's KRA Setting
+                </h2>
+                <ul class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'dashboard' %}"><i class="icon-home"></i></a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'kra:configuration' %}">KRA Configuration</a></li>
+                    <li class="breadcrumb-item active">View Company's KRA Setting</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="row clearfix">
+        <div class="col-lg-12 col-md-12">
+            <div class="card planned_task">
+                <div class="header">
+                    <div class="row">
+                        <div class="col-lg-10 col-sm-8 col-xs-12">
+                            <h2>Company's KRA Setting for {{ companykra.bucket.title }}</h2>
+                            <br>
+                            {% if companykra.is_draft %}
+                                <span class="bg-warning text-light p-1">Draft</span>
+                            {% else %}
+                                <span class="bg-success text-light p-1">{{ companykra.status }}</span>
+                            {% endif %}
+                        </div>
+                        <div class="col-lg-2 col-sm-4 col-xs-12">
+                            {% if companykra.is_draft %}
+                                <a href="{% url 'kra:company-setting' kra_identifier=companykra.identifier %}"
+                                   class="btn btn-warning btn-block">Edit</a>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                </div>
+                <div class="body">
+                    <div class="table-responsive">
+                        <table class="table table-striped" role="table">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Name</th>
+                                    <th>Description</th>
+                                    <th>Weight</th>
+                                    <th>Target</th>
+                                    <th>Actual</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in companykra.items.all %}
+                                    <tr>
+                                        <td>{{ forloop.counter }}</td>
+                                        <td>{{ item.name }}</td>
+                                        <td>{{ item.description | linebreaks }}</td>
+                                        <td>{{ item.weight }}</td>
+                                        <td>{{ item.target }}</td>
+                                        <td>{{ item.actual | default:"-" }}</td>
+                                    </tr>
+                                {% empty %}
+                                    <tr>
+                                        <td colspan="6" class="text-center">No item to display</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

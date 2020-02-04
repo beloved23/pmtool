@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% block content %}
+    <div class="block-header">
+        <div class="row">
+            <div class="col-lg-5 col-md-8 col-sm-12">
+                <h2>
+                    <a href="javascript:void(0);" class="btn btn-xs btn-link btn-toggle-fullwidth">
+                        <i class="fa fa-arrow-left"></i>
+                    </a>
+                    Manage Departments
+                </h2>
+                <ul class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'dashboard' %}"><i class="icon-home"></i></a></li>
+                    <li class="breadcrumb-item active">Manage Departments</li>
+                </ul>
+            </div>
+            <div class="col-lg-7 col-md-4 col-sm-12 text-right">
+                {% if perms.company.can_add_department  or user.is_staff %}
+                    <a href="{% url 'company:add-departments' %}" class="btn btn-default">Add Departments</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="row clearfix">
+        <div class="col-lg-12 col-md-12">
+            <div class="card planned_task">
+                <div class="header">
+                    <h2>Departments</h2>
+                </div>
+                <div class="body">
+                    <div class="table-responsive">
+                        <table class="table table-striped" role="table">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Name</th>
+                                    <th>Number of Members</th>
+                                    <th>Director</th>
+                                    <th>Date Created</th>
+                                    {% if perms.company.can_delete_department or perms.company.can_add_department or user.is_staff %}
+                                        <th>Actions</th>
+                                    {% endif %}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for department in department_list %}
+                                    <tr>
+                                        <td>{{ forloop.counter }}</td>
+                                        <td>{{ department.name | title }}</td>
+                                        <td>{{ department.members.count }}</td>
+                                        <td>
+                                            {% if department.director %}
+                                                {{ department.director.user.get_full_name | title }}({{ department.director.auuid }})
+                                            {% else %}
+                                                -
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ department.date_created | date:"F d, Y H:i" }}</td>
+                                        {% if perms.company.can_delete_department or perms.company.can_add_department or user.is_staff %}
+                                            <td>
+                                                {% if perms.company.can_view_department  or user.is_staff %}
+                                                    <a href="{{ department.get_absolute_url }}" class="btn btn-default">View</a>
+                                                {% endif %}
+                                                {% if perms.company.can_add_department  or user.is_staff %}
+                                                    <a href="{% url 'company:edit-department' pk=department.pk %}" class="btn btn-default">Edit</a>
+                                                {% endif %}
+                                                {% if perms.company.can_delete_department or user.is_staff %}
+                                                    <a href="{% url 'company:delete-department' pk=department.pk %}" class="btn btn-danger">Delete</a>
+                                                {% endif %}
+                                            </td>
+                                        {% endif %}
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

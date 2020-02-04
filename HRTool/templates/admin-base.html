@@ -1,0 +1,203 @@
+{% load static %}
+{% load menutags %}
+<!doctype html>
+<html lang="en">
+
+<head>
+    <title>:: Right Seat :: Admin</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <meta name="description" content="Right Seat Bootstrap 4x Admin Template">
+    <meta name="author" content="WrapTheme, design by: ThemeMakker.com">
+
+    <link rel="icon" href="{% static 'images/logo-icon.png' %}" type="image/png">
+    <!-- VENDOR CSS -->
+    <link rel="stylesheet" href="{% static 'theme/vendor/bootstrap/css/bootstrap.min.css' %}"/>
+    <link rel="stylesheet" href="{% static 'theme/vendor/font-awesome/css/font-awesome.min.css' %}"/>
+    {% block styles %}{% endblock %}
+    <link rel="stylesheet" href="{% static 'theme/vendor/toastr/toastr.min.css' %}">
+
+    <!-- MAIN CSS -->
+    <link rel="stylesheet" href="{% static 'theme/css/main.css' %}">
+    <link rel="stylesheet" href="{% static 'theme/css/color_skins.css' %}">
+    <style>
+        body{
+            overflow-x: hidden;
+        }
+
+        :root{
+            --theme: #8e000b;
+        }
+    </style>
+</head>
+<body class="theme-blush">
+
+<!-- Page Loader -->
+<div class="page-loader-wrapper">
+    <div class="loader">
+        <div class="m-t-30"><img src="{% static 'images/logo-icon.png' %}" width="48" height="48" alt="Right Seat">
+        </div>
+        <p style="color: var(--theme);">Please wait...</p>
+    </div>
+</div>
+<!-- Overlay For Sidebars -->
+
+<div id="wrapper">
+
+    <nav class="navbar navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-brand">
+                <a href="{% url 'superuser:dashboard' %}"><img src="{% static 'images/logo.png' %}"
+                                                               alt="Right Seat Logo" class="img-responsive logo"></a>
+            </div>
+
+            <div class="navbar-right">
+                <div id="navbar-menu">
+                    <ul class="nav navbar-nav">
+{#                        <li class="dropdown">#}
+{#                            <a href="javascript:void(0);" class="dropdown-toggle icon-menu" data-toggle="dropdown">#}
+{#                                <i class="icon-bell"></i>#}
+{#                                <span class="notification-dot"></span>#}
+{#                            </a>#}
+{#                            <ul class="dropdown-menu notifications animated shake">#}
+{#                                <li class="header"><strong>You have 4 new Notifications</strong></li>#}
+{#                                <li>#}
+{#                                    <a href="javascript:void(0);">#}
+{#                                        <div class="media">#}
+{#                                            <div class="media-left">#}
+{#                                                <i class="icon-info text-danger"></i>#}
+{#                                            </div>#}
+{#                                            <div class="media-body">#}
+{#                                                <p class="text">Company 1's Subscription plan expires in 5days</p>#}
+{#                                                <span class="timestamp">January 19, 2019</span>#}
+{#                                            </div>#}
+{#                                        </div>#}
+{#                                    </a>#}
+{#                                </li>#}
+{#                                <li>#}
+{#                                    <a href="javascript:void(0);">#}
+{#                                        <div class="media">#}
+{#                                            <div class="media-left">#}
+{#                                                <i class="icon-info text-danger"></i>#}
+{#                                            </div>#}
+{#                                            <div class="media-body">#}
+{#                                                <p class="text">Company 1's Subscription plan expires in 5days</p>#}
+{#                                                <span class="timestamp">January 19, 2019</span>#}
+{#                                            </div>#}
+{#                                        </div>#}
+{#                                    </a>#}
+{#                                </li>#}
+{#                                <li>#}
+{#                                    <a href="javascript:void(0);">#}
+{#                                        <div class="media">#}
+{#                                            <div class="media-left">#}
+{#                                                <i class="icon-info text-danger"></i>#}
+{#                                            </div>#}
+{#                                            <div class="media-body">#}
+{#                                                <p class="text">Company 1's Subscription plan expires in 5days</p>#}
+{#                                                <span class="timestamp">January 19, 2019</span>#}
+{#                                            </div>#}
+{#                                        </div>#}
+{#                                    </a>#}
+{#                                </li>#}
+{#                                <li>#}
+{#                                    <a href="javascript:void(0);">#}
+{#                                        <div class="media">#}
+{#                                            <div class="media-left">#}
+{#                                                <i class="icon-info text-danger"></i>#}
+{#                                            </div>#}
+{#                                            <div class="media-body">#}
+{#                                                <p class="text">Company 1's Subscription plan expires in 5days</p>#}
+{#                                                <span class="timestamp">January 19, 2019</span>#}
+{#                                            </div>#}
+{#                                        </div>#}
+{#                                    </a>#}
+{#                                </li>#}
+{#                            </ul>#}
+{#                        </li>#}
+                        <li><a href="#" class="icon-menu d-block"><i class="icon-lock"></i></a></li>
+                        <li><a href="{% url 'superuser:logout' %}" class="icon-menu d-block"><i class="icon-login"></i></a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="navbar-btn">
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar"
+                        aria-expanded="false">
+                    <i class="lnr lnr-menu fa fa-bars"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="main_menu">
+        <nav class="navbar navbar-expand-lg">
+            <div class="container">
+                <div class="navbar-collapse align-items-center collapse" id="navbar">
+                    <ul class="navbar-nav">
+                        <li class="nav-item dropdown {% active 'superuser:dashboard' %}">
+                            <a href="{% url 'superuser:dashboard' %}" class="nav-link"><i class="icon-speedometer"></i>
+                                <span> Dashboard</span></a>
+                        </li>
+                        <li class="nav-item dropdown {% active 'superuser:companies' %}">
+                            <a href="{% url 'superuser:companies' %}" class="nav-link"><i class="icon-grid"></i> <span> Manage Companies</span></a>
+                        </li>
+                        <li class="nav-item dropdown {% active 'superuser:plans' %}">
+                            <a href="{% url 'superuser:plans' %}" class="nav-link"><i class="icon-list"></i> <span> Manage Plans</span></a>
+                        </li>
+                        <li class="nav-item dropdown {% active 'superuser:users' %}">
+                            <a href="{% url 'superuser:users' %}" class="nav-link"><i class="icon-users"></i> <span> Manage Users</span></a>
+                        </li>
+                    </ul>
+                </div>
+
+            </div>
+        </nav>
+    </div>
+
+    <div id="main-content">
+        <div class="container">
+            {% block content %}
+
+            {% endblock %}
+        </div>
+    </div>
+
+</div>
+<!-- Javascript -->
+<script src="{% static 'theme/bundles/libscripts.bundle.js' %}"></script>
+<script src="{% static 'theme/bundles/vendorscripts.bundle.js' %}"></script>
+<script src="{% static 'theme/vendor/toastr/toastr.js' %}"></script>
+<script src="{% static 'theme/bundles/mainscripts.bundle.js' %}"></script>
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+{% block scripts %}
+{% endblock %}
+<script>
+    $(function () {
+        toastr.options = {
+            "timeOut": "5000",
+            "closeButton": true,
+            "positionClass": "toast-bottom-right",
+            "onCloseClick": function () {
+            }
+        };
+        {% for message in messages %}
+            toastr['{{ message.tags }}']("{{ message }}");
+        {% endfor %}
+    })
+</script>
+
+{#<div id="toast-container" class="toast-bottom-right">#}
+{#    <div class="toast toast-success" aria-live="assertive" style="">#}
+{#        <button type="button" class="toast-close-button" role="button">×</button>#}
+{#        <div class="toast-message">This is success info</div>#}
+{#    </div>#}
+{#    <div class="toast toast-error" aria-live="assertive" style="">#}
+{#        <button type="button" class="toast-close-button" role="button">×</button>#}
+{#        <div class="toast-message">This is error info</div>#}
+{#    </div>#}
+{#</div>#}
+</body>
+</html>

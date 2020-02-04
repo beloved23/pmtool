@@ -1,0 +1,254 @@
+{% extends 'admin-base.html' %}
+{% load static %}
+{% block styles %}
+    <link rel="stylesheet" href="{% static 'theme/vendor/sweetalert/sweetalert.css' %}"/>
+{% endblock %}
+{% block content %}
+{#    <h4>Companies</h4>#}
+{#    <a href="{% url 'superuser:add-company' %}">Add Company</a>#}
+{#    <table>#}
+{#        <tr>#}
+{#            <th>#</th>#}
+{#            <th>Name</th>#}
+{#            <th>Identifier</th>#}
+{#            <th>Plan</th>#}
+{#            <th>Status</th>#}
+{#            <th>Date Created</th>#}
+{#            <th>Last Updated</th>#}
+{#            <th>Actions</th>#}
+{#        </tr>#}
+{#        {% for company in company_list %}#}
+{#            <tr>#}
+{#                <td>{{ forloop.counter }}</td>#}
+{#                <td><a href="{{ company.get_absolute_url }}">{{ company.name | title }}</a></td>#}
+{#                <td>{{ company.identifier | upper }}</td>#}
+{#                <td>{{ company.plan }}</td>#}
+{#                <td>#}
+{#                    {% if company.is_active %}#}
+{#                        Active#}
+{#                    {% else %}#}
+{#                        Inactive#}
+{#                    {% endif %}#}
+{#                </td>#}
+{#                <td>#}
+{#                    {{ company.date_created | date:"F d, Y H:i" }}#}
+{#                </td>#}
+{#                <td>#}
+{#                    {{ company.date_updated | date:"F d, Y H:i" }}#}
+{#                </td>#}
+{#                <td>#}
+{#                    <a href="{% url 'superuser:edit-company' pk=company.pk %}">Edit</a> |#}
+{#                    <a href="{% url 'superuser:toggle-company-status' pk=company.pk %}">#}
+{#                        {% if company.is_active %}#}
+{#                            Deactivate#}
+{#                        {% else %}#}
+{#                            Activate#}
+{#                        {% endif %}#}
+{#                    </a> |#}
+{#                    <a href="{% url 'superuser:delete-company' pk=company.pk %}">Delete</a>#}
+{#                </td>#}
+{#            </tr>#}
+{#        {% endfor %}#}
+{#    </table>#}
+    <div class="block-header">
+        <div class="row">
+            <div class="col-lg-4 col-md-3 col-sm-12">
+                <h2><a href="{% url 'superuser:dashboard' %}" class="btn btn-xs btn-link btn-toggle-fullwidth">
+                    <i class="fa fa-arrow-left"></i></a> Companies
+                </h2>
+                <ul class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'superuser:dashboard' %}"><i class="icon-home"></i></a></li>
+                    <li class="breadcrumb-item">Companies</li>
+                    <li class="breadcrumb-item active">List</li>
+                </ul>
+            </div>
+            <div class="col-lg-8 col-md-9 col-sm-12 text-right">
+                <div class="row">
+                    <div class="col-lg-6 col-sm-12">
+                        <div class="input-group mb-3 mt-3">
+                            <input type="text" class="form-control" placeholder="Company's name" aria-label="Company's name" aria-describedby="basic-addon2">
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-secondary" type="button">Search</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-sm-12">
+                        <div class="input-group mb-3 mt-3">
+                            <select class="custom-select" id="inputGroupSelect04">
+                                <option selected="">Filter By:</option>
+                                <option value="Active">Active Status</option>
+                                <option value="Inactive">Inactive Status</option>
+                                <option value="Inactive">Plan 1</option>
+                                <option value="Inactive">Plan 2</option>
+                                <option value="Inactive">Plan 3</option>
+                                <option value="Inactive">Plan 4</option>
+                            </select>
+                            <div class="input-group-append">
+                                <a class="btn btn-default"  href="#">Add Companies</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row clearfix">
+        <div class="col-lg-3 col-md-6 col-sm-12">
+            <div class="card">
+                <div class="body text-center">
+                    <div class="chart easy-pie-chart-1" data-percent="75"> <span><img src="{% static 'theme/images/sm/avatar1.jpg' %}" alt="user" class="rounded-circle"/></span> </div>
+                    <h5>John Smith</h5>
+                    <small>Plan 1</small>
+                    <br>
+                    <span class="badge badge-success">Active</span>
+                    <div class="m-t-15">
+                        <button class="btn btn-sm btn-default">View</button>
+                        <button class="btn btn-sm btn-danger">Deactivate</button>
+                    </div>
+                    <ul class="social-links list-unstyled">
+                        <li><a href="javascript:void(0);" class="text-danger">Delete</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 col-sm-12">
+            <div class="card">
+                <div class="body text-center">
+                    <div class="chart easy-pie-chart-1" data-percent="67"> <span><img src="{% static 'theme/images/sm/avatar2.jpg' %}" alt="user" class="rounded-circle"/></span> </div>
+                    <h5>Hossein Shams</h5>
+                    <small>Plan 1</small>
+                    <br>
+                    <span class="badge badge-success">Active</span>
+                    <div class="m-t-15">
+                        <button class="btn btn-sm btn-default">View</button>
+                        <button class="btn btn-sm btn-danger">Deactivate</button>
+                    </div>
+                    <ul class="social-links list-unstyled">
+                        <li><a href="javascript:void(0);" class="text-danger">Delete</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 col-sm-12">
+            <div class="card">
+                <div class="body text-center">
+                    <div class="chart easy-pie-chart-1" data-percent="23"> <span><img src="{% static 'theme/images/sm/avatar3.jpg' %}" alt="user" class="rounded-circle"/></span> </div>
+                    <h5>Maryam Amiri</h5>
+                    <small>Plan 1</small>
+                    <br>
+                    <span class="badge badge-success">Active</span>
+                    <div class="m-t-15">
+                        <button class="btn btn-sm btn-default">View</button>
+                        <button class="btn btn-sm btn-danger">Deactivate</button>
+                    </div>
+                    <ul class="social-links list-unstyled">
+                        <li><a href="javascript:void(0);" class="text-danger">Delete</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 col-sm-12">
+            <div class="card">
+                <div class="body text-center">
+                    <div class="chart easy-pie-chart-1" data-percent="49"> <span><img src="{% static 'theme/images/sm/avatar4.jpg' %}" alt="user" class="rounded-circle"/></span> </div>
+                    <h5>Tim Hank</h5>
+                    <small>Plan 1</small>
+                    <br>
+                    <span class="badge badge-success">Active</span>
+                    <div class="m-t-15">
+                        <button class="btn btn-sm btn-default">View</button>
+                        <button class="btn btn-sm btn-danger">Deactivate</button>
+                    </div>
+                    <ul class="social-links list-unstyled">
+                        <li><a href="javascript:void(0);" class="text-danger">Delete</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 col-sm-12">
+            <div class="card">
+                <div class="body text-center">
+                    <div class="chart easy-pie-chart-1" data-percent="75"> <span><img src="{% static 'theme/images/sm/avatar5.jpg' %}" alt="user" class="rounded-circle"/></span> </div>
+                    <h5>John Smith</h5>
+                    <small>Plan 1</small>
+                    <br>
+                    <span class="badge badge-success">Active</span>
+                    <div class="m-t-15">
+                        <button class="btn btn-sm btn-default">View</button>
+                        <button class="btn btn-sm btn-success">Activate</button>
+                    </div>
+                    <ul class="social-links list-unstyled">
+                        <li><a href="javascript:void(0);" class="text-danger">Delete</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 col-sm-12">
+            <div class="card">
+                <div class="body text-center">
+                    <div class="chart easy-pie-chart-1" data-percent="88"> <span><img src="{% static 'theme/images/sm/avatar1.jpg' %}" alt="user" class="rounded-circle"/></span> </div>
+                    <h5>Frank Camly</h5>
+                    <small>Plan 1</small>
+                    <br>
+                    <span class="badge badge-success">Active</span>
+                    <div class="m-t-15">
+                        <button class="btn btn-sm btn-default">View</button>
+                        <button class="btn btn-sm btn-danger">Deactivate</button>
+                    </div>
+                    <ul class="social-links list-unstyled">
+                        <li><a href="javascript:void(0);" class="text-danger">Delete</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 col-sm-12">
+            <div class="card">
+                <div class="body text-center">
+                    <div class="chart easy-pie-chart-1" data-percent="37"> <span><img src="{% static 'theme/images/sm/avatar2.jpg' %}" alt="user" class="rounded-circle"/></span> </div>
+                    <h5>Gary Camara</h5>
+                    <small>Plan 1</small>
+                    <br>
+                    <span class="badge badge-success">Active</span>
+                    <div class="m-t-15">
+                        <button class="btn btn-sm btn-default">View</button>
+                        <button class="btn btn-sm btn-success">Activate</button>
+                    </div>
+                    <ul class="social-links list-unstyled">
+                        <li><a href="javascript:void(0);" class="text-danger">Delete</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 col-sm-12">
+            <div class="card">
+                <div class="body text-center">
+                    <div class="chart easy-pie-chart-1" data-percent="75"> <span><img src="{% static 'theme/images/sm/avatar5.jpg' %}" alt="user" class="rounded-circle"/></span> </div>
+                    <h5>John Smith</h5>
+                    <small>Plan 1</small>
+                    <br>
+                    <span class="badge badge-success">Active</span>
+                    <div class="m-t-15">
+                        <button class="btn btn-sm btn-default">View</button>
+                        <button class="btn btn-sm btn-danger">Deactivate</button>
+                    </div>
+                    <ul class="social-links list-unstyled">
+                        <li><a href="javascript:void(0);" class="text-danger">Delete</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <ul class="pagination pagination-default">
+                <li class="page-item"><a class="page-link" href="javascript:void(0);">Previous</a></li>
+                <li class="page-item active"><a class="page-link" href="javascript:void(0);">1</a></li>
+                <li class="page-item"><a class="page-link" href="javascript:void(0);">2</a></li>
+                <li class="page-item"><a class="page-link" href="javascript:void(0);">3</a></li>
+                <li class="page-item"><a class="page-link" href="javascript:void(0);">Next</a></li>
+            </ul>
+        </div>
+    </div>
+{% endblock %}
+{% block scripts %}
+    <script src="{% static 'theme/bundles/easypiechart.bundle.js' %}"></script>
+{% endblock %}

@@ -1,0 +1,159 @@
+{% extends 'admin-base.html' %}
+{% load widget_tweaks %}
+{% load static %}
+{% block styles %}
+    <link rel="stylesheet" href="{% static 'theme/vendor/bootstrap-datepicker/css/bootstrap-datepicker3.min.css' %}">
+{% endblock %}
+{% block content %}
+    <div class="block-header">
+        <div class="row">
+            <div class="col-lg-6 col-md-8 col-sm-12">
+                <h2>
+                    <a href="{% url 'superuser:companies' %}" class="btn btn-xs btn-link btn-toggle-fullwidth"><i
+                            class="fa fa-arrow-left"></i></a> Add Company
+                </h2>
+                <ul class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'superuser:dashboard' %}"><i class="icon-home"></i></a>
+                    </li>
+                    <li class="breadcrumb-item"><a href="{% url 'superuser:companies' %}">Companies</a></li>
+                    <li class="breadcrumb-item active">Add Company</li>
+                </ul>
+            </div>
+            <div class="col-lg-6 col-md-4 col-sm-12 text-right"></div>
+        </div>
+    </div>
+    <div class="row clearfix">
+        <div class="col-sm-12">
+            <div class="card">
+                <div class="body">
+                    <div class="row">
+                        <div class="col-sm-1 col-xs-12"></div>
+                        <div class="col-sm-10 col-xs-12">
+                            <form action="" method="post" enctype="multipart/form-data" role="form">
+                                {% csrf_token %}
+                                <div class="row">
+                                    <div class="col-sm-6 col-xs-12">
+                                        <fieldset>
+                                            <legend>Company Details</legend>
+                                            {% if form.non_field_errors %}
+                                                <div class="alert alert-danger">
+                                                    {{ form.non_field_errors }}
+                                                </div>
+                                            {% endif %}
+                                            {% if subscription_form.non_field_errors %}
+                                                <div class="alert alert-danger">
+                                                    {{ subscription_form.non_field_errors }}
+                                                </div>
+                                            {% endif %}
+                                            {% for field in form %}
+                                                {% if not field.is_hidden %}
+                                                    <div class="form-group">
+                                                        {{ field.label_tag }}
+                                                        {% render_field field class+="form-control" placeholder=field.label %}
+                                                        {% if field.errors %}
+                                                            <div class="text-danger">{{ field.errors }}</div>
+                                                        {% endif %}
+                                                    </div>
+                                                {% else %}
+                                                    {{ field }}
+                                                {% endif %}
+                                            {% endfor %}
+                                        </fieldset>
+                                    </div>
+                                    <div class="col-sm-6 col-xs-12">
+                                        <fieldset>
+                                            <legend>Subscription Details</legend>
+                                            {% if subscription_form.non_field_errors %}
+                                                <div class="alert alert-danger">
+                                                    {{ subscription_form.non_field_errors }}
+                                                </div>
+                                            {% endif %}
+                                            {% for field in subscription_form %}
+                                                {% if not field.is_hidden %}
+                                                    <div class="form-group">
+                                                        {{ field.label_tag }}
+                                                        {% if field == subscription_form.expiry %}
+                                                            <div class="input-group mb-3">
+                                                                <div class="input-group-prepend">
+                                                                    <span class="input-group-text"><i class="icon-calendar"></i></span>
+                                                                </div>
+                                                                {% render_field field class+="form-control date" placeholder="YYYY-MM-DD" %}
+                                                            </div>
+                                                        {% else %}
+                                                            {% render_field field class+="form-control" placeholder=field.label %}
+                                                            {% if field.errors %}
+                                                                <div class="text-danger">{{ field.errors }}</div>
+                                                            {% endif %}
+
+                                                        {% endif %}
+                                                    </div>
+                                                {% else %}
+                                                    {{ field }}
+                                                {% endif %}
+                                            {% endfor %}
+
+                                        </fieldset>
+                                    </div>
+                                </div>
+                                <fieldset>
+                                    <legend>HRD Details</legend>
+                                    {% if member_form.non_field_errors %}
+                                        <div class="alert alert-danger">
+                                            {{ member_form.non_field_errors }}
+                                        </div>
+                                    {% endif %}
+                                    <div class="row">
+                                        {% for field in member_form %}
+                                            {% if not field.is_hidden %}
+                                                <div class="col-sm-6 col-xs-12">
+                                                    <div class="form-group">
+                                                        {{ field.label_tag }}
+                                                        {% if field == member_form.photo %}
+                                                            {% render_field field class+="form-control p-b-40" %}
+                                                        {% elif field == member_form.appointment_date %}
+                                                            <div class="input-group mb-3">
+                                                                <div class="input-group-prepend">
+                                                                    <span class="input-group-text"><i class="icon-calendar"></i></span>
+                                                                </div>
+                                                                {% render_field field class+="form-control date" placeholder="YYYY-MM-DD" %}
+                                                            </div>
+                                                        {% else %}
+                                                            {% render_field field class+="form-control" placeholder=field.label %}
+                                                        {% endif %}
+
+                                                        {% if field.errors %}
+                                                            <div class="text-danger">{{ field.errors }}</div>
+                                                        {% endif %}
+                                                    </div>
+                                                </div>
+
+                                            {% else %}
+                                                {{ field }}
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                </fieldset>
+                                <div class="col-sm-12 text-center">
+                                    <input type="submit" value="Create!" class="btn btn-lg btn-outline-success">
+                                </div>
+                            </form>
+                        </div>
+                        <div class="col-sm-1 col-xs-12"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block scripts %}
+    <script src="{% static 'theme/vendor/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
+    <script src="{% static 'theme/vendor/jquery-inputmask/jquery.inputmask.bundle.js' %}"></script>
+    <script src="{% static 'theme/vendor/jquery.maskedinput/jquery.maskedinput.min.js' %}"></script>
+    <script>
+        $(function () {
+            //Date
+            $('.date').inputmask('yyyy-mm-dd', { placeholder: '____-__-__' });
+        });
+
+    </script>
+{% endblock %}

@@ -1,0 +1,38 @@
+{% extends 'email.base.html' %}
+{% block content %}
+    <h1>Hi {{ user.first_name }},</h1>
+    <p>
+        {{ kra.user.first_name }} just submitted {% if kra.user.profile.gender == 'Female' %}her{% else %}his{% endif %} KRA Setting for <b>{{ kra.bucket.title }}</b>
+    </p>
+    <p>
+        Please use the button below to view the KRA Setting for next action.
+    </p>
+    <table class="action" align="center" width="100%" cellpadding="0" cellspacing="0" role="presentation">
+        <tr>
+            <td align="center">
+                <table width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation">
+                    <tr>
+                        <td align="center">
+                            <table border="0" cellpadding="0" cellspacing="0" role="presentation">
+                                <tr>
+                                    <td>
+                                        <a href="{{ request.scheme }}://{{ request.META.HTTP_HOST }}{% url 'kra:view-kra' kra_identifier=kra.identifier %}" class="button button-primary" target="_blank">View KRA Setting</a>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+    <table class="subcopy" width="100%" cellpadding="0" cellspacing="0" role="presentation">
+        <tr>
+            <td>
+                If you’re having trouble clicking the "View KRA Setting" button,
+                copy and paste the URL below into your web browser:
+                <a href="{{ request.scheme }}://{{ request.META.HTTP_HOST }}{% url 'kra:view-kra' kra_identifier=kra.identifier %}">{{ request.scheme }}://{{ request.META.HTTP_HOST }}{% url 'kra:view-kra' kra_identifier=kra.identifier %}</a>
+            </td>
+        </tr>
+    </table>
+{% endblock %}

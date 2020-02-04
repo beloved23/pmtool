@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+{% load static %}
+{% block content %}
+    <div class="block-header">
+        <div class="row">
+            <div class="col-lg-5 col-md-8 col-sm-12">
+                <h2>
+                    <a href="javascript:void(0);" class="btn btn-xs btn-link btn-toggle-fullwidth">
+                        <i class="fa fa-arrow-left"></i>
+                    </a>
+                    Company's KRA Setting
+                </h2>
+                <ul class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'dashboard' %}"><i class="icon-home"></i></a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'kra:configuration' %}">KRA Configuration</a></li>
+                    <li class="breadcrumb-item active">Company's KRA Setting</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="row clearfix">
+        <div class="col-lg-12 col-md-12">
+            <div class="card planned_task">
+                <div class="header">
+                    {% if kra %}
+                        <h2>Company's KRA Setting for {{ kra.bucket.title }}</h2>
+                    {% else %}
+                        <h2>Company's KRA Setting</h2>
+                    {% endif %}
+                </div>
+                <div class="body">
+                    <form action="" method="post">
+                        {% csrf_token %}
+                        {{ form.management_form }}
+                        {% if form.non_form_errors %}
+                            <div class="alert alert-danger">
+                                {{ form.non_form_errors.as_ul }}
+                            </div>
+                        {% endif %}
+
+                        <div class="table-responsive">
+                            <table role="table" class="table table-striped">
+                                {% for f in form.forms %}
+                                    {% if forloop.first %}
+                                        <thead>
+                                        <tr>
+                                            {% for field in f.visible_fields %}
+                                                {% if forloop.last and field != f.description %}
+                                                    <th></th>
+                                                {% endif %}
+                                                <th>{{ field.label|capfirst }}</th>
+                                            {% endfor %}
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                    {% endif %}
+                                    <tr class="formset_row">
+                                        {% for field in f.visible_fields %}
+                                            <td>
+                                                {# Include the hidden fields in the form #}
+                                                {% if forloop.first %}
+                                                    {% for hidden in f.hidden_fields %}
+                                                        {{ hidden }}
+                                                    {% endfor %}
+                                                {% endif %}
+                                                {% if field == f.description %}
+                                                    {% render_field field rows="5" style+="resize: none" class+="form-control" %}
+                                                {% else %}
+                                                    {% render_field field class+="form-control" %}
+                                                {% endif %}
+                                                {% if field.errors %}
+                                                    <div class="alert alert-danger">
+                                                        {{ field.errors.as_ul }}
+                                                    </div>
+                                                {% endif %}
+                                            </td>
+                                        {% endfor %}
+                                    </tr>
+                                    {% if forloop.last %}
+                                        </tbody>
+                                    {% endif %}
+                                {% endfor %}
+                            </table>
+                        </div>
+                        {% if not kra %}
+                            <div class="row">
+                                <div class="col-lg-2 col-sm-3 col-xs-12">
+                                    <div class="form-group">
+                                        <label for="bucket">Bucket</label>
+                                        <select required name="bucket" id="bucket" class="form-control">
+                                            <option></option>
+                                            {% for bucket in user.profile.company.open_buckets %}
+                                                <option value="{{ bucket.reference }}">{{ bucket.title }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %}
+                        <input type="submit" value="Save as Draft" name="action" class="btn btn-lg btn-outline-primary">
+                        <input type="submit" value="Submit" name="action" class="btn btn-lg btn-default">
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block scripts %}
+    <script src="{% static 'scripts/jquery.formset.js' %}"></script>
+    <script type="text/javascript">
+        $('.formset_row').formset({
+            addText: 'add more',
+            deleteText: 'remove',
+            addCssClass: "btn btn-default add-row",
+            deleteCssClass: "text-danger add-row",
+            prefix: 'items'
+        });
+    </script>
+
+{% endblock %}

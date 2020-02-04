@@ -1,0 +1,185 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    padding: 0;
+    margin: 0;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.container {
+    background-image: url(../images/login-bg.jpg);
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.login-container {
+
+    overflow: hidden;
+    width: 70%;
+    height: 60%;
+    background-color:white;
+    border-radius: 15px;
+    display: flex;
+    flex-direction: row;
+    box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.193)
+}
+
+.login-content-image {
+    background-image: url(../images/login-image.jpg);
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    border-bottom-left-radius: 15px;
+    border-top-left-radius: 15px;
+}
+
+.login-content {
+    width: 50%;
+    margin: 0;
+    padding: 0;
+}
+.errorlist li{
+    color: #f00;
+}
+
+h2 {
+    font-size: 35px;
+    color: rgb(126, 3, 9)
+}
+
+.login {
+    padding: 10px;
+    padding-bottom: 20px;
+    width: 80%;
+    margin: 0 auto;
+}
+
+input {
+    height: 50px;
+    width: 100%;
+    padding: 10px;
+    color: darkgray;
+    border-radius: 5px;
+    margin: 10px 0;
+    border: 1px solid darkgray;
+    font-size: 15px
+}
+
+button {
+    height: 40px;
+    width: 100%;
+    padding: 10px;
+    color: white;
+    border-radius: 5px;
+    margin: 10px 0;
+    background-color: rgb(179, 15, 15);
+    border: 0;
+    /* button font */
+    font-size: 15px;
+    font-weight: bolder;
+    cursor: pointer;
+    transition: all 2s
+}
+
+button:hover {
+    background-color: rgb(111, 11, 11)
+}
+
+/* checkbox */
+
+input[type='checkbox'] {
+    width: 20px;
+    height: 20px;
+    background-color: white;
+    border: 2px solid darkgray;
+    color: white;
+    margin: 0 5px 0 0
+}
+
+.label-checkbox {
+    padding: 5px;
+    width: 100%;
+    vertical-align: middle;
+    display: inline-flex;
+    justify-content: space-between;
+    height: 30px;
+}
+
+.label-checkbox a{
+    font-size: 13px;
+    font-style: italic;
+}
+
+.label-checkbox div{
+}
+
+.label-checkbox div input{
+    vertical-align: middle;
+}
+
+.label-checkbox div small{
+    vertical-align: middle;
+}
+
+label {
+    text-transform: capitalize;
+    font-style: italic;
+    font-size: 15px;
+}
+
+@media only screen and (max-width:768px) {
+    .container {
+        height: 100vh;
+        width: 100%;
+    }
+    .login-container {
+        display: flex;
+        flex-direction: column;
+    }
+    .login-content {
+        width: 100%;
+        margin: 0;
+        padding: 0;
+        height: 0;
+    }
+    .login {
+        width: 100%;
+        margin: 0%;
+        padding: 20px;
+    }
+    h2 {
+        margin: 5px;
+        font-size: 30px
+    }
+    input {
+        height: 35px;
+        width: 100%;
+        padding: 10px;
+        color: darkgray;
+        border-radius: 5px;
+        margin: 10px 0;
+        border: 1px solid darkgray;
+        font-size: 15px
+    }
+    button {
+        height: 30px;
+        width: 100%;
+        padding: 10px;
+        color: white;
+        border-radius: 5px;
+        margin: 10px 0;
+        background-color: rgb(179, 15, 15);
+        border: 0;
+        /* button font */
+        font-size: 15px;
+        font-weight: bolder;
+        cursor: pointer;
+    }
+}

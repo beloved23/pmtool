@@ -1,0 +1,257 @@
+{% extends 'base.html' %}
+{% block content %}
+    <div class="block-header">
+        <div class="row">
+            <div class="col-lg-9 col-md-8 col-sm-12">
+                <h2>
+                    <a href="javascript:void(0);" class="btn btn-xs btn-link btn-toggle-fullwidth">
+                        <i class="fa fa-arrow-left"></i>
+                    </a>
+                    KRA Management
+                </h2>
+                <ul class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'dashboard' %}"><i class="icon-home"></i></a></li>
+                    <li class="breadcrumb-item active">KRA Management</li>
+                </ul>
+            </div>
+            <div class="col-lg-3 col-md-4 col-sm-12 text-right">
+                <div class="form-group text-left">
+                    <label for="bucket-filter">Select Financial Year:</label><br>
+                    <select id="bucket-filter" class="form-control">
+                        {% for bucket_ in user.profile.company.kra_buckets.all %}
+                            <option {% if bucket_ == bucket %}selected{% endif %} value="{{ bucket_.reference }}">{{ bucket_.title }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <a href="{% url 'kra:setting' %}?bucket={{ bucket.reference }}" class="btn btn-outline-dark">Set KRA</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row clearfix">
+        <div class="col-lg-12 col-md-12">
+            <div class="card planned_task">
+                <div class="header">
+                    <h2>KRA Management for {{ bucket.title }}</h2>
+                </div>
+                <div class="body">
+                    <ul class="nav nav-tabs">
+                        <li class="nav-item"><a class="nav-link active show" data-toggle="tab" href="#tab1">Your KRA</a></li>
+                        <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#tab2">Company's KRAs</a></li>
+                        <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#tab3">Manager's KRA</a></li>
+                        <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#tab4">Team members KRA</a></li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane show active" id="tab1">
+                            <h6>Your KRAs</h6>
+                            <div class="table-responsive">
+                                <table class="table table-striped" role="table">
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Number of Items</th>
+                                            <th>Status</th>
+                                            <th>Date Created</th>
+                                            <th>Date Updated</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for kra in kras %}
+                                            <tr>
+                                                <td>{{ forloop.counter }}</td>
+                                                <td>{{ kra.items.count }}</td>
+                                                <td>
+                                                    {% if kra.is_draft %}
+                                                        <span class="bg-warning text-light p-1">Draft</span>
+                                                    {% elif kra.is_accepted and kra.status != "Closed" %}
+                                                        <span class="bg-success text-light p-1">Accepted</span>
+                                                    {% elif kra.status == "Rejected" %}
+                                                        <span class="bg-danger text-light p-1">{{ kra.status }}</span>
+                                                    {% else %}
+                                                        <span class="bg-success text-light p-1">{{ kra.status }}</span>
+                                                    {% endif %}
+                                                    <br><br>
+                                                    {% if kra.self_assessed %}
+                                                        <span><i class="fa fa-check-circle text-success"></i> Self assessed</span>
+                                                    {% endif %}
+                                                </td>
+                                                <td>{{ kra.date_created | date:"F d, Y" }}</td>
+                                                <td>{{ kra.date_updated | date:"F d, Y" | default_if_none:"-" }}</td>
+                                                <td>
+                                                    <a href="{{ kra.get_absolute_url }}" class="btn btn-default">View</a>
+                                                    {% if kra.is_draft %}
+                                                        <a href="{% url 'kra:delete-kra' kra_identifier=kra.identifier %}" class="btn btn-danger">Delete</a>
+                                                    {% endif %}
+                                                </td>
+                                            </tr>
+                                        {% empty %}
+                                            <tr>
+                                                <td colspan="7" class="text-center">
+                                                    You have not created any KRA in {{ bucket.title }} yet
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="tab-pane" id="tab2">
+                            <h6>Company's KRA</h6>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <div class="table-responsive">
+                                        <table class="table table-striped" role="table">
+                                            <thead>
+                                                <tr>
+                                                    <th>#</th>
+                                                    <th>Name</th>
+                                                    <th>Description</th>
+                                                    <th>Weight</th>
+                                                    <th>Target</th>
+                                                    <th>Actual</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% if company_kra %}
+                                                    {% for item in company_kra.items.all %}
+                                                        <tr>
+                                                            <td>{{ forloop.counter }}</td>
+                                                            <td>{{ item.name }}</td>
+                                                            <td>{{ item.description }}</td>
+                                                            <td>{{ item.weight }}</td>
+                                                            <td>{{ item.target }}</td>
+                                                            <td>{{ item.actual }}</td>
+                                                        </tr>
+                                                    {% endfor %}
+                                                {% else %}
+                                                    <tr>
+                                                        <td colspan="6" class="text-center">No item to display</td>
+                                                    </tr>
+                                                {% endif %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tab-pane" id="tab3">
+                            <h6>Line Manager's KRA</h6>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <div class="table-responsive">
+                                        <table class="table table-striped" role="table">
+                                            <thead>
+                                                <tr>
+                                                    <th>#</th>
+                                                    <th>Name</th>
+                                                    <th>Description</th>
+                                                    <th>Weight</th>
+                                                    <th>Target</th>
+                                                    <th>Actual</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% if manager_kra %}
+                                                    {% for item in manager_kra.items.all %}
+                                                        <tr>
+                                                            <td>{{ forloop.counter }}</td>
+                                                            <td>{{ item.name }}</td>
+                                                            <td>{{ item.description }}</td>
+                                                            <td>{{ item.weight }}</td>
+                                                            <td>{{ item.target }}</td>
+                                                            <td>{{ item.actual | default:"-" }}</td>
+                                                        </tr>
+                                                    {% endfor %}
+                                                {% else %}
+                                                    <tr>
+                                                        <td colspan="6" class="text-center">No item to display</td>
+                                                    </tr>
+                                                {% endif %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tab-pane" id="tab4">
+                            <h6>Team members KRAs</h6>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <div class="table-responsive">
+                                        <table class="table table-striped" role="table">
+                                            <thead>
+                                                <tr>
+                                                    <th>#</th>
+                                                    <th></th>
+                                                    <th>Name</th>
+                                                    <th>Number of Items</th>
+                                                    <th>Status</th>
+                                                    <th>Date Created</th>
+                                                    <th>Date Updated</th>
+                                                    <th></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for kra in descendants_kras %}
+                                                    <tr>
+                                                        <td>{{ forloop.counter }}</td>
+                                                        <td>
+                                                            <img width="80px" height="80px" src="{{ kra.user.profile.photo.url }}" alt="{{ kra.user.get_full_name }}'s Photo">
+                                                        </td>
+                                                        <td>{{ kra.user.get_full_name | title }} ({{ kra.user.profile.auuid }})</td>
+                                                        <td>
+                                                            {{ kra.items.count }}
+                                                        </td>
+                                                        <td>
+                                                            {% if kra.is_draft %}
+                                                                <span class="bg-warning text-light p-1">Draft</span>
+                                                            {% elif kra.is_accepted and kra.status != "Closed" %}
+                                                                <span class="bg-success text-light p-1">Accepted</span>
+                                                            {% elif kra.status == "Rejected" %}
+                                                                <span class="bg-danger text-light p-1">{{ kra.status }}</span>
+                                                            {% else %}
+                                                                <span class="bg-success text-light p-1">{{ kra.status }}</span>
+                                                            {% endif %}
+                                                            <br><br>
+                                                            {% if kra.self_assessed %}
+                                                                <span><i class="fa fa-check-circle text-success"></i> Self assessed</span>
+                                                            {% endif %}
+                                                        </td>
+                                                        <td>{{ kra.date_created | date:"F d, Y H:i" }}</td>
+                                                        <td>{{ kra.date_updated | date:"F d, Y H:i" | default_if_none:"-" }}</td>
+                                                        <td>
+                                                            <a class="btn btn-default" href="{{ kra.get_absolute_url }}">View KRAs</a>
+                                                        </td>
+                                                    </tr>
+                                                {% empty %}
+                                                    <tr>
+                                                        <td colspan="8" class="text-center">
+                                                            No item to display
+                                                        </td>
+                                                    </tr>
+                                                {% endfor %}
+
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block scripts %}
+    <script>
+        let BASE_URL = "{% url 'kra:management' %}";
+        $(function () {
+            $("#bucket-filter").change(function (){
+                window.location.href = BASE_URL+$(this).val()+"/";
+            });
+        })
+    </script>
+{% endblock %}

@@ -1,0 +1,140 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load widget_tweaks %}
+{% block styles %}
+    <link rel="stylesheet" href="{% static 'theme/vendor/bootstrap-multiselect/bootstrap-multiselect.css' %}">
+    <link rel="stylesheet" href="{% static 'theme/vendor/multi-select/css/multi-select.css' %}">
+    <!-- Select2 -->
+    <link rel="stylesheet" href="{% static 'theme/vendor/select2/select2.css' %}" />
+{% endblock %}
+{% block content %}
+    <div class="block-header">
+        <div class="row">
+            <div class="col-lg-5 col-md-8 col-sm-12">
+                <h2>
+                    <a href="javascript:void(0);" class="btn btn-xs btn-link btn-toggle-fullwidth">
+                        <i class="fa fa-arrow-left"></i>
+                    </a>
+                    Add Members
+                </h2>
+                <ul class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'dashboard' %}"><i class="icon-home"></i></a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'company:members' %}">Manage Members</a></li>
+                    <li class="breadcrumb-item active">Add Members</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="row clearfix">
+        <div class="col-lg-12 col-md-12">
+            <div class="card planned_task">
+                <div class="header">
+                    <h2>Add Members</h2>
+                </div>
+                <div class="body">
+                    <form action="" method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        {{ form.management_form }}
+                        {% if form.non_form_errors %}
+                            <div class="alert alert-danger">
+                                {{ form.non_form_errors.as_ul }}
+                            </div>
+                        {% endif %}
+                            <ol role="list" class="list">
+                                {% for f in form.forms %}
+
+{#                                {% if forloop.first %}#}
+{#                                    <thead>#}
+{#                                        <tr>#}
+{#                                            {% for field in f.visible_fields %}#}
+{#                                                <th>{{ field.label|capfirst }}</th>#}
+{#                                            {% endfor %}#}
+{#                                            <th></th>#}
+{#                                        </tr>#}
+{#                                    </thead>#}
+{#                                    <tbody>#}
+{#                                {% endif %}#}
+
+                                    <li class="formset_row m-b-20">
+                                        <div class="row">
+                                            {% for field in f.visible_fields %}
+                                                {# Include the hidden fields in the form #}
+                                                {% if forloop.first %}
+                                                    {% for hidden in f.hidden_fields %}
+                                                        {{ hidden }}
+                                                    {% endfor %}
+                                                {% endif %}
+                                                <div class="col-sm-6 col-xs-12">
+                                                    <div class="form-group">
+                                                        <label for="{{ field.auto_id }}">{{ field.label }}</label>
+                                                        {% if field == f.permissions %}
+                                                            {% render_field field class+="form-control show-tick ms search-select" %}
+                                                        {% elif field == f.manager or field == f.role or field == f.department %}
+                                                            {% render_field field class+="form-control search-select" %}
+                                                        {% elif field == f.appointment_date %}
+                                                            <div class="input-group mb-3">
+                                                                <div class="input-group-prepend">
+                                                                    <span class="input-group-text"><i class="icon-calendar"></i></span>
+                                                                </div>
+                                                                {% render_field field class+="form-control date" placeholder="YYYY-MM-DD" %}
+                                                            </div>
+                                                        {% else %}
+                                                            {% render_field field class+="form-control" %}
+                                                        {% endif %}
+
+                                                        {% if field.errors %}
+                                                            <br>
+                                                            <div class="alert alert-danger">
+                                                                {{ field.errors.as_ul }}
+                                                            </div>
+                                                        {% endif %}
+                                                    </div>
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+                                    </li>
+                                {% endfor %}
+                            </ol>
+
+                        <input type="submit" value="Submit" class="btn btn-default btn-lg">
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block scripts %}
+    <script src="{% static 'theme/vendor/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
+    <script src="{% static 'theme/vendor/jquery-inputmask/jquery.inputmask.bundle.js' %}"></script>
+    <script src="{% static 'theme/vendor/jquery.maskedinput/jquery.maskedinput.min.js' %}"></script>
+    <script src="{% static 'scripts/jquery.formset.js' %}"></script>
+    <script type="text/javascript">
+        $('.formset_row').formset({
+            addText: '<i class="fa fa-plus"></i> Add more',
+            deleteText: 'remove',
+            addCssClass: "btn btn-default add-row",
+            deleteCssClass: "text-danger add-row",
+            prefix: 'members'
+        });
+    </script>
+    <script src="{% static 'theme/vendor/multi-select/js/jquery.multi-select.js' %}"></script> <!-- Multi Select Plugin Js -->
+    <script src="{% static 'theme/vendor/bootstrap-multiselect/bootstrap-multiselect.js' %}"></script>
+    <script src="{% static 'theme/vendor/select2/select2.min.js' %}"></script> <!-- Select2 Js -->
+    <script>
+        $(function (){
+            $('.date').inputmask('yyyy-mm-dd', { placeholder: '____-__-__' });
+           $('.search-select').multiselect({
+                enableFiltering: true,
+                enableCaseInsensitiveFiltering: true,
+                maxHeight: 200,
+                buttonWidth: "100%",
+                templates: {
+                    li: '<li><a tabindex="0" style="display: block"><label></label></a></li>',
+                    ul: '<ul class="multiselect-container dropdown-menu w-100"></ul>'
+                }
+                {#buttonContainer: '<div class="btn-group btn-block" />'#}
+            });
+        });
+    </script>
+{% endblock %}

@@ -1,0 +1,362 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+{% load static %}
+{% block styles %}
+    <link rel="stylesheet" href="{% static 'css/loading-gif.css' %}">
+{% endblock %}
+{% block content %}
+    <div class="block-header">
+        <div class="row">
+            <div class="col-lg-5 col-md-8 col-sm-12">
+                <h2>
+                    <a href="javascript:void(0);" class="btn btn-xs btn-link btn-toggle-fullwidth">
+                        <i class="fa fa-arrow-left"></i>
+                    </a>
+                    View KRA Setting
+                </h2>
+                <ul class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'dashboard' %}"><i class="icon-home"></i></a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'kra:management' reference=kra.bucket.reference %}">KRA Management</a></li>
+                    <li class="breadcrumb-item active">View KRA Setting</li>
+                </ul>
+            </div>
+            <div class="col-lg-7 col-md-4 col-sm-12 text-right">
+                {% if kra.user.profile.manager == user.profile or user.is_staff %}
+                    <a href="{% url 'kra:download_kra_report' kra_identifier=kra.identifier %}" class="btn btn-lg btn-default">Download Report</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="row clearfix">
+        <div class="col-lg-12 col-md-12">
+            <div class="card planned_task">
+                <div class="header">
+                    <div class="row">
+                        <div class="col-lg-10 col-sm-8 col-xs-12">
+                            <h2>{% if kra.user == user %}Your{% else %}{{ kra.user.profile }}'s {% endif %} KRA Setting for {{ kra.bucket.title }}</h2>
+                            <br>
+                            {% if kra.is_draft %}
+                                <span class="bg-warning text-light p-1">Draft</span>
+                            {% elif kra.is_accepted and kra.status != "Closed" %}
+                                <span class="bg-success text-light p-1">Accepted</span>
+                            {% elif kra.status == "Rejected" %}
+                                <span class="bg-danger text-light p-1">{{ kra.status }}</span>
+                            {% else %}
+                                <span class="bg-success text-light p-1">{{ kra.status }}</span>
+                            {% endif %}
+                            <br><br>
+                            {% if kra.self_assessed %}
+                                <span><i class="fa fa-check-circle text-success"></i> Self assessed</span>
+                            {% endif %}
+                        </div>
+                        <div class="col-lg-2 col-sm-4 col-xs-12">
+                            {% if kra.is_draft and kra.user == user %}
+                                <a href="{% url 'kra:setting' kra_identifier=kra.identifier %}"
+                                   class="btn btn-warning btn-block">Edit</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div class="body">
+                    <ul class="nav nav-tabs">
+                        <li class="nav-item"><a class="nav-link active show" data-toggle="tab" href="#tab1">KRA Items</a></li>
+                        <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#tab2">Conversation</a></li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane show active" id="tab1">
+                            <div class="table-responsive">
+                                <table class="table table-striped" role="table">
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Name</th>
+                                            <th>Description</th>
+                                            <th>Weight</th>
+                                            <th>Target</th>
+                                            <th>Actual</th>
+                                            <th>Achievement %</th>
+                                            <th>Comment</th>
+                                            <th>Manager's achievement %</th>
+                                            <th>Manager's comment</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for item in kra.items.all %}
+                                            <tr>
+                                                <td>{{ forloop.counter }}</td>
+                                                <td>{{ item.name }}</td>
+                                                <td>{{ item.description | linebreaks }}</td>
+                                                <td>{{ item.weight }}</td>
+                                                <td>{{ item.target }}</td>
+                                                <td>{{ item.actual | default:"-" }}</td>
+                                                <td>{{ item.achievement | default:"-" }}</td>
+                                                <td>{{ item.comment | linebreaks }}</td>
+                                                <td>{{ item.manager_achievement | default:"-" }}</td>
+                                                <td>{{ item.manager_comment | linebreaks }}</td>
+                                            </tr>
+                                        {% empty %}
+                                            <tr>
+                                                <td colspan="6" class="text-center">No item to display</td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                                {% if kra.bucket.allow_final_assessment and kra.is_accepted and kra.self_assessed %}
+                                    {% if is_hod or user.profile.is_ceo or kra.user.profile.manager == user.profile %}
+                                        <table class="table">
+                                            <tr>
+                                                <th>Manager's Rating</th>
+                                                <th>Head Of Department's Rating</th>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    {{ kra.rating | default:"-" }}
+                                                </td>
+                                                <td>
+
+                                                    {% if is_hod and kra.hod_rating %}
+                                                        {{ kra.hod_rating }}
+                                                    {% elif is_hod or user.profile.is_ceo %}
+                                                        <form action="" method="post">
+                                                            {% csrf_token %}
+                                                            {% if ratingForm.non_field_errors %}
+                                                                <div class="alert alert-danger">
+                                                                    {{ ratingForm.non_field_errors.as_ul }}
+                                                                </div>
+                                                            {% endif %}
+                                                            {% for field in ratingForm %}
+                                                                <div class="form-group">
+                                                                    {{ field.label_tag }}
+                                                                    {% render_field field class+="form-control" %}
+                                                                    {% if field.errors %}
+                                                                        <div class="alert alert-danger">
+                                                                            {{ field.errors }}
+                                                                        </div>
+                                                                    {% endif %}
+                                                                </div>
+                                                            {% endfor %}
+                                                            <input type="submit" class="btn btn-primary" value="Submit">
+                                                        </form>
+                                                    {% endif %}
+
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    {% endif %}
+                                {% endif %}
+                                {% if kra.bucket.status == "Open" and kra.status == "Open" and kra.user == user %}
+                                    <a href="{% url 'kra:setting' kra_identifier=kra.identifier %}" class="btn btn-primary">Modify</a>
+                                {% endif %}
+                                {% if kra.is_draft and kra.user == user %}
+                                    <a href="{% url 'kra:delete-kra' kra_identifier=kra.identifier %}"
+                                       class="btn btn-danger btn-lg">Delete</a>
+                                {% endif %}
+                                {% if not kra.self_assessed and kra.bucket.allow_self_assessment and kra.is_accepted and kra.status == "Submitted" and kra.user == user %}
+                                    <a href="{% url 'kra:self-assessment' kra_identifier=kra.identifier %}"
+                                       class="btn btn-primary btn-lg">Start Self Assessment</a>
+                                {% endif %}
+                                {% if kra.bucket.allow_final_assessment and kra.status == "Submitted" and kra.self_assessed and kra.is_accepted and kra.user.profile.manager == user.profile %}
+                                    <a href="{% url 'kra:assessment' kra_identifier=kra.identifier %}"
+                                       class="btn btn-outline-dark btn-lg">Start Assessment</a>
+                                {% endif %}
+                                {% if kra.bucket.status == "Open" and kra.status == "Submitted" and kra.user.profile.manager == user.profile %}
+                                    <button data-type="question" data-url="?modify=1" data-text="Are you sure you want to allow modification on the KRA setting?" data-title="Allow Modifications" class="btn btn-warning btn-lg popup">Allow Modifications</button>
+                                {% endif %}
+                                {% if kra.bucket.status == "Open" and kra.status == "Submitted" and kra.user.profile.manager == user.profile and not kra.is_accepted %}
+                                    <button data-type="question" data-url="?accept=1" data-text="Are you sure you want to accept this KRA setting? This action may not be reversed." data-title="Accept KRA Setting" class="btn btn-success btn-lg popup">Accept</button>
+                                    <button data-type="question" data-url="?reject=1" data-text="Are you sure you want to reject this KRA setting? No further actions can be performed on it once cancelled." data-title="Reject KRA Setting" class="btn btn-danger btn-lg popup">Reject</button>
+                                {% endif %}
+                                {% if kra.user.profile.manager == user.profile %}
+                                    <a href="{% url 'p_i_p:create' auuid=kra.user.profile.auuid %}"
+                                       class="btn btn-outline-danger btn-lg">Raise PIP</a>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="tab-pane" id="tab2">
+                            <div class="cwidget-scroll">
+                                <ul class="chat-widget m-r-5 clearfix">
+                                    {% include 'kra/messages.html' with messages=kra.messages.all %}
+                                </ul>
+                            </div>
+                            <form action="" method="post" enctype="multipart/form-data" class="p-t-15" id="messageForm">
+                                {% csrf_token %}
+                                <div id="attachment-preview" class="row" style="background: #edecec; display: none">
+                                    <div class="col-sm-10 p-t-10">
+                                        <span id="uploaded-fake-icon" style="padding-right: 10px; color: var(--theme); font-weight: bold;">-</span>
+                                        <span id="uploaded-fake-title">-</span>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <button type="button" onclick="return removeAttachment(this);" class="text-danger btn btn-lg btn-block">&times; Remove</button>
+                                    </div>
+                                </div>
+                                <div class="input-group">
+                                    <input type="file" class="hidden" id="attachment" name="file" style="display: none">
+                                    <input type="text" class="form-control" name="message" placeholder="Enter message here...">
+                                    <div class="input-group-append">
+                                        <span style="cursor:pointer;" class="input-group-text" onclick="$('#attachment').click();" ><i class="icon-link"></i></span>
+                                        <span style="cursor:pointer;" class="input-group-text" onclick="sendMessage(this);"><i class="icon-paper-plane"></i></span>
+                                    </div>
+                                </div>
+                                <small class="text-muted">Press Enter to send</small>
+                                <br>
+                                <small class="text-danger message-failed" style="display: none;">Error! message not sent</small>
+                                <div class="lds-css ng-scope" style="display: none;">
+                                    <div class="lds-spinner" style="width:100%;height:100%">
+                                        <div></div>
+                                        <div></div>
+                                        <div></div>
+                                        <div></div>
+                                        <div></div>
+                                        <div></div>
+                                        <div></div>
+                                        <div></div>
+                                        <div></div>
+                                        <div></div>
+                                        <div></div>
+                                        <div></div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block scripts %}
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@8.17.1/dist/sweetalert2.all.min.js"></script>
+    <script>
+        function get_messages(){
+            $.get("{% url 'kra:view-kra' kra_identifier=kra.identifier %}", {'get_messages': 1}, function (data){
+                if (typeof data.success != 'undefined'){
+                    $("ul.chat-widget").append(data.messages);
+                }
+                setTimeout(function (){
+                    get_messages();
+                }, 2500);
+            });
+        }
+        $(function (){
+            get_messages();
+        });
+        function removeAttachment($this){
+            $("#attachment").val("");
+            $("#attachment-preview").hide();
+            return false;
+        }
+        function sendMessage($this){
+            if(!$(".lds-css").is(":visible") && ($("#attachment").prop('files').length > 0 || $("input[name=message]").val().trim() != "")){
+                $(".message-failed").hide();
+                $(".lds-css").show();
+                let fd = new FormData();
+                fd.append("text", $("input[name=message]").val().trim());
+                if ($("#attachment").prop('files').length > 0){
+                    fd.append("file", $("#attachment").prop('files')[0]);
+                }
+                fd.append("csrfmiddlewaretoken", $("input[name=csrfmiddlewaretoken]").val());
+                console.log(fd);
+                console.log(fd.entries());
+                $.ajax({
+                    url: window.location.href+"?message=1",
+                    type: "post",
+                    data: fd,
+                    contentType: false,
+                    processData: false,
+                    success: function (data){
+                        $("ul.chat-widget").append(data.messages);
+                        var scrollTo_int = $(".cwidget-scroll").prop('scrollHeight') + 'px';
+                        $(".cwidget-scroll").slimScroll({
+                            height: "400px",
+                            wheelStep: 10,
+                            touchScrollStep: 50,
+                            scrollTo: scrollTo_int,
+                            color: "#efefef",
+                            size: "2px",
+                            borderRadius: "3px",
+                            alwaysVisible: true,
+                            start: 'bottom',
+                            position: "right"
+                        });
+                        $("#attachment").val("");
+                        $("#attachment-preview").hide();
+                        $("input[name=message]").val("");
+                        $(".lds-css").hide();
+                    },
+                    failure: function (){
+                        $(".message-failed").show();
+                        $(".lds-css").hide();
+                    }
+                });
+            }
+        }
+        $(function () {
+            $("#messageForm").submit(function (e) {
+                e.preventDefault();
+                sendMessage(this);
+                return false;
+            });
+            $("#attachment").change(function (){
+                $files = $(this).prop('files');
+//                console.log($(this).prop('files'));
+                if ($files.length > 0){
+                    $("#uploaded-fake-icon").text($files[0].type.split("/")[1].toUpperCase());
+                    $("#uploaded-fake-title").text($files[0].name);
+                    $("#attachment-preview").show();
+                }else{
+                    removeAttachment(this);
+                }
+            });
+            $(".popup").click(function (){
+                $url = $(this).data("url");
+                $type = $(this).data("type");
+                $title = $(this).data("title");
+                $question = $(this).data("text");
+                swal.fire({
+                    type: $type,
+                    title: $title,
+                    text: $question,
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes, proceed!',
+                    cancelButtonText: "No, don't proceed!",
+                    allowOutsideClick: false
+                }).then(function (response){
+                    if(typeof response.dismiss == 'undefined'){
+                        return new Promise(function (resolve, reject) {
+                            $.ajax({
+                                url: $url,
+                                type: "post",
+                                data: {"csrfmiddlewaretoken": $("input[name=csrfmiddlewaretoken]").val()},
+                                success: function (response) {
+                                    if(typeof response.error == 'undefined'){
+                                    swal.fire({
+                                        type: 'success',
+                                        title: 'Success!',
+                                        html: response.message
+                                    }).then(function (r){
+                                        window.location.reload();
+                                    });
+                                }else{
+                                    swal.fire({
+                                        type: 'error',
+                                        title: 'Error!',
+                                        html: response.message
+                                    });
+                                }
+                                },
+                                failure: function () {
+                                    swal.fire({
+                                        type: 'error',
+                                        title: 'Error!',
+                                        html: "An unexpected error occurred, please try again"
+                                    });
+                                }
+                            });
+                        })
+                    }
+                });
+            });
+        });
+    </script>
+{% endblock %}

@@ -1,0 +1,213 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load widget_tweaks %}
+{% block styles %}
+<link rel="stylesheet" href="{% static 'theme/vendor/bootstrap-colorpicker/css/bootstrap-colorpicker.css' %}" />
+{% endblock %}
+{% block content %}
+    <div class="block-header">
+        <div class="row">
+            <div class="col-lg-5 col-md-8 col-sm-12">
+                <h2>
+                    <a href="javascript:void(0);" class="btn btn-xs btn-link btn-toggle-fullwidth">
+                        <i class="fa fa-arrow-left"></i>
+                    </a>
+                    KRA Configuration
+                </h2>
+                <ul class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'dashboard' %}"><i class="icon-home"></i></a></li>
+                    <li class="breadcrumb-item active">KRA Configuration</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="row clearfix">
+        <div class="col-lg-12">
+            <div class="card planned_task">
+                <div class="header">
+                    <h2>KRA Configuration</h2>
+                </div>
+                <div class="body">
+                    <ul class="nav nav-tabs">
+                        <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#tab0">New KRA Bucket</a></li>
+                        <li class="nav-item"><a class="nav-link active show" data-toggle="tab" href="#tab1">KRA Buckets</a></li>
+                        <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#tab2">Company KRAs</a></li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane" id="tab0">
+                            <form action="" method="post">
+                                {% csrf_token %}
+                                {% if form.non_field_errors %}
+                                    <div class="alert alert-danger">
+                                        {{ form.non_field_errors.as_ul }}
+                                    </div>
+                                {% endif %}
+                                {% for field in form %}
+                                    <div class="form-group">
+                                        {{ field.label_tag }}
+                                        {% render_field field class+="form-control" %}
+                                        {% if field.errors %}
+                                            <div class="alert alert-danger">
+                                                {{ field.errors }}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                {% endfor %}
+                                <input type="submit" class="btn btn-default" value="Create!">
+                            </form>
+                        </div>
+                        <div class="tab-pane show active" id="tab1">
+                            <div class="row m-b-20">
+                                <div class="col-sm-9 col-xs-12">
+                                    <h6>KRA Buckets</h6>
+                                </div>
+                                <div class="col-sm-3 col-xs-12 text-right"></div>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-striped" role="table">
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Title</th>
+                                            <th>Created by</th>
+                                            <th>Status</th>
+                                            <th>Date Created</th>
+                                            <th>Date Updated</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for bucket in buckets %}
+                                            <tr>
+                                                <td>{{ forloop.counter }}</td>
+                                                <td>{{ bucket.title }}</td>
+                                                <td>{{ bucket.created_by.profile }}</td>
+                                                <td>
+                                                    <span class="text-{% if bucket.status == "Open" %}success{% else %}danger{% endif %}">
+                                                        {{ bucket.status }}
+                                                    </span>
+                                                </td>
+                                                <td>{{ bucket.date_created | date:"F d, Y" }}</td>
+                                                <td>{{ bucket.date_updated | date:"F d, Y" }}</td>
+                                                <td>
+                                                    <a href="{{ bucket.get_absolute_url }}" class="btn btn-default">View</a>
+                                                    <span class="dropdown">
+                                                        <button class="btn btn-outline-secondary dropdown-toggle" type="button"
+                                                                id="dropdownMenuButton" data-toggle="dropdown"
+                                                                aria-haspopup="true" aria-expanded="false">
+                                                            Action
+                                                        </button>
+                                                        <span class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                                            {% if bucket.status == "Open" %}
+                                                                <a href="{% url 'kra:toggle-kra-bucket' reference=bucket.reference %}?status" class="dropdown-item text-danger">Deactivate</a>
+                                                            {% else %}
+                                                                <a href="{% url 'kra:toggle-kra-bucket' reference=bucket.reference %}?status" class="dropdown-item text-success">Activate</a>
+                                                            {% endif %}
+                                                            {% if bucket.allow_self_assessment %}
+                                                                <a href="{% url 'kra:toggle-kra-bucket' reference=bucket.reference %}?self-assessment" class="dropdown-item text-danger">Stop Self Assessment</a>
+                                                            {% else %}
+                                                                <a href="{% url 'kra:toggle-kra-bucket' reference=bucket.reference %}?self-assessment" class="dropdown-item text-success">Start Self Assessment</a>
+                                                            {% endif %}
+                                                            {% if bucket.allow_final_assessment %}
+                                                                <a href="{% url 'kra:toggle-kra-bucket' reference=bucket.reference %}?assessment" class="dropdown-item text-danger">Stop Assessment</a>
+                                                            {% else %}
+                                                                <a href="{% url 'kra:toggle-kra-bucket' reference=bucket.reference %}?assessment" class="dropdown-item text-success">Start Assessment</a>
+                                                            {% endif %}
+                                                        </span>
+                                                    </span>
+
+
+                                                </td>
+                                            </tr>
+                                        {% empty %}
+                                            <tr>
+                                                <td colspan="7" class="text-center">
+                                                    You have not created any KRA bucket yet
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="tab-pane" id="tab2">
+                            <div class="row m-b-20">
+                                <div class="col-sm-6">
+                                    <h6>Company KRAs</h6>
+                                </div>
+                                <div class="col-sm-6 text-right">
+                                    <a href="{% url 'kra:company-setting' %}" class="btn btn-default">Create KRA</a>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <div class="table-responsive">
+                                        <table class="table table-striped" role="table">
+                                            <thead>
+                                                <tr>
+                                                    <th>#</th>
+                                                    <th>Bucket Title</th>
+                                                    <th>Items</th>
+                                                    <th>Created by</th>
+                                                    <th>Status</th>
+                                                    <th>Date Created</th>
+                                                    <th>Date Updated</th>
+                                                    <th></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for kra in kras %}
+                                                    <tr>
+                                                        <td>{{ forloop.counter }}</td>
+                                                        <td>{{ kra.bucket.title }}</td>
+                                                        <td>{{ kra.items.count }}</td>
+                                                        <td>{{ kra.created_by.profile }}</td>
+                                                        <td>
+                                                            {% if kra.is_draft %}
+                                                                <span class="bg-warning text-light p-1">Draft</span>
+                                                            {% else %}
+                                                                <span class="bg-success text-light p-1">{{ kra.status }}</span>
+                                                            {% endif %}
+                                                        </td>
+                                                        <td>{{ kra.date_created | date:"F d, Y" }}</td>
+                                                        <td>{{ kra.date_updated | date:"F d, Y" }}</td>
+                                                        <td>
+                                                            <a href="{{ kra.get_absolute_url }}" class="btn btn-default">View</a>
+                                                        </td>
+                                                    </tr>
+                                                {% empty %}
+                                                    <tr>
+                                                        <td colspan="8" class="text-center">
+                                                            You have not created any KRA yet
+                                                        </td>
+                                                    </tr>
+                                                {% endfor %}
+
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block scripts %}
+    <script src="{% static 'theme/vendor/bootstrap-colorpicker/js/bootstrap-colorpicker.js' %}"></script> <!-- Bootstrap Colorpicker Js -->
+    <script src="{% static 'scripts/jquery.formset.js' %}"></script>
+    <script type="text/javascript">
+        $('.formset_row').formset({
+            addText: 'add more',
+            deleteText: 'remove',
+            prefix: 'ratings'
+        });
+        $(function (){
+           $('.colorpicker').colorpicker();
+        });
+    </script>
+{% endblock %}

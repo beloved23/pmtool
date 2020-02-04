@@ -1,0 +1,35 @@
+{% for message in messages %}
+    {% if message.user == user %}
+        <li class="right">
+            <img src="{{ message.user.profile.photo.url }}" class="rounded-circle" alt="">
+            <div class="chat-info">
+                <span class="message">
+                    {% if message.file %}
+                        <a target="_blank" href="{{ message.file.url }}"
+                                class="btn btn-outline-light btn-block">
+                            <i class="fa fa-link"></i> File: <b>{{ message.filename }}</b>
+                        </a>
+                    {% else %}
+                        {{ message.text | linebreaks }}
+                    {% endif %}
+                </span>
+            </div>
+        </li>
+    {% else %}
+        <li class="left float-left">
+            <img src="{{ message.user.profile.photo.url }}" class="rounded-circle" alt="">
+            <div class="chat-info">
+                <span class="message">
+                    {% if message.file %}
+                        <a target="_blank" href="{{ message.file.url }}"
+                                class="btn btn-outline-secondary btn-block">
+                            <i class="fa fa-link"></i> File: <b>{{ message.filename }}</b>
+                        </a>
+                    {% else %}
+                        {{ message.text | linebreaks }}
+                    {% endif %}
+                </span>
+            </div>
+        </li>
+    {% endif %}
+{% endfor %}

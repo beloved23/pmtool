@@ -1,0 +1,55 @@
+{% extends 'email.base.html' %}
+{% block content %}
+    <h1>Hi {{ user.first_name }},</h1>
+    <p>
+        Your account has just been created, please find below your login credentials. It is advised you change your password after login.
+    </p>
+    <p>
+        {% if not user.is_superuser %}
+            Username: <b>{{ user.profile.auuid }}</b> <br>
+            Company ID: <b>{{ user.profile.company.identifier }}</b> <br>
+        {% else %}
+            Username: <b>{{ user.username }}</b> <br>
+        {% endif %}
+        Password: <b>{{ password }}</b>
+    </p>
+    <p>
+        Please use the button below to access your login page.
+    </p>
+    <table class="action" align="center" width="100%" cellpadding="0" cellspacing="0" role="presentation">
+        <tr>
+            <td align="center">
+                <table width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation">
+                    <tr>
+                        <td align="center">
+                            <table border="0" cellpadding="0" cellspacing="0" role="presentation">
+                                <tr>
+                                    <td>
+                                        {% if not user.is_superuser %}
+                                            <a href="{{ request.scheme }}://{{ request.META.HTTP_HOST }}{% url 'custom-login' company_identifier=user.profile.company.identifier %}" class="button button-primary" target="_blank">Goto Login</a>
+                                        {% else %}
+                                            <a href="{{ request.scheme }}://{{ request.META.HTTP_HOST }}{% url 'superuser:login' %}" class="button button-primary" target="_blank">Goto Login</a>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+    <table class="subcopy" width="100%" cellpadding="0" cellspacing="0" role="presentation">
+        <tr>
+            <td>
+                If you’re having trouble clicking the "Goto Login" button,
+                copy and paste the URL below into your web browser:
+                {% if not user.is_superuser %}
+                    <a href="{{ request.scheme }}://{{ request.META.HTTP_HOST }}{% url 'custom-login' company_identifier=user.profile.company.identifier %}">{{ request.scheme }}://{{ request.META.HTTP_HOST }}{% url 'custom-login' company_identifier=user.profile.company.identifier %}</a>
+                {% else %}
+                    <a href="{{ request.scheme }}://{{ request.META.HTTP_HOST }}{% url 'superuser:login' %}">{{ request.scheme }}://{{ request.META.HTTP_HOST }}{% url 'superuser:login' %}</a>
+                {% endif %}
+            </td>
+        </tr>
+    </table>
+{% endblock %}

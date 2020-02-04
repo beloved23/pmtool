@@ -1,0 +1,144 @@
+* {
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0
+}
+
+body {
+    font-family: "Lato", sans-serif;
+    font-size: 16px;
+}
+
+ul {
+    list-style-type: none;
+}
+
+header {
+    background-color: white;
+    box-shadow: 0px 3px 4px rgba(0, 0, 0, 0.398);
+    height: 70px;
+    color: white;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 2;
+}
+
+header a {
+    text-decoration: none;
+    color: inherit;
+    font-size: 17px;
+}
+
+.header-list {
+    float: right;
+    margin-right: 0;
+    height: 60px;
+}
+
+.header-list .header-list-ul {
+    display: inline-flex;
+    height: 70px;
+}
+
+.logoimage {
+    width: 150px;
+    margin: 5px 20px;
+}
+
+.header-list li {
+    padding: 0 10px;
+    padding-top: 15px;
+    color: rgb(1, 5, 17);
+    vertical-align: middle;
+    font-weight: 400;
+}
+
+.header-list li:hover {
+    background-color: rgb(233, 233, 233);
+    color: rgb(7, 135, 163);
+}
+
+.dropdown {
+    width: 150px;
+    background-color: rgb(238, 238, 238);
+    color: gray;
+    border: 3px solid steelblue;
+    border-bottom: 0px;
+    border-left: 0px;
+    border-right: 0px;
+    display: none;
+    position: absolute;
+    z-index: 5;
+    top: 70px;
+    right: 10px;
+}
+
+#abt-dropdown:hover .dropdown {
+    display: block;
+}
+
+#abt-dropdown img {
+    width: 30px;
+}
+
+.dropdown ul {
+    display: block;
+    border-radius: 5px;
+}
+
+.dropdown li {
+    padding: 8px 10px;
+    border: 0;
+    color: gray;
+    transition: all 1s;
+}
+
+.dropdown li:hover {
+    background-color: rgb(223, 223, 223);
+    padding-left: 20px;
+}
+
+.fas {
+    margin: 10px;
+    font-size: 40px;
+    vertical-align: middle;
+}
+
+.drp-profile {
+    font-size: 18px;
+}
+
+.container ul {
+    display: inline-flex;
+    list-style: none;
+    width: 100%;
+}
+
+.container li {
+    list-style: none;
+    width: 100%;
+}
+
+.container li:last-child {
+    margin-left: 50px;
+}
+
+p {
+    margin: 3px;
+    margin-bottom: 4px;
+}
+
+.form-control {
+    margin-bottom: 30px;
+}
+
+a:hover {
+    text-decoration: none;
+}
+
+.scroll-form{
+    height: 400px;
+    overflow: scroll;
+}

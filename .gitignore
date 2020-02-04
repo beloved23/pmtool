@@ -1,0 +1,7 @@
+**/migrations/
+.idea/
+HRTool/templates/html/*
+HRTool/NGCOMIntranetWebPortal_files/*
+*.log
+mariam.py
+HRTool/media/*

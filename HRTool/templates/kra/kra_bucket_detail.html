@@ -1,0 +1,299 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block styles %}
+    <link rel="stylesheet" href="{% static 'theme/vendor/chartist/css/chartist.min.css' %}"/>
+{% endblock %}
+{% block content %}
+    <div class="block-header">
+        <div class="row">
+            <div class="col-lg-5 col-md-8 col-sm-12">
+                <h2>
+                    <a href="javascript:void(0);" class="btn btn-xs btn-link btn-toggle-fullwidth">
+                        <i class="fa fa-arrow-left"></i>
+                    </a>
+                    View KRA Bucket
+                </h2>
+                <ul class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'dashboard' %}"><i class="icon-home"></i></a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'kra:configuration' %}">KRA Configurations</a></li>
+                    <li class="breadcrumb-item active">View KRA Bucket</li>
+                </ul>
+            </div>
+            <div class="col-lg-7 col-md-4 col-sm-12 text-right">
+                <a href="{% url 'kra:download_bucket_report' reference=krabucket.reference %}" class="btn btn-lg btn-default">Download Report</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row clearfix">
+        <div class="col-lg-12 col-md-12">
+            <div class="card planned_task">
+                <div class="header">
+                    <h2>{{ krabucket.title }}'s Bell Curve</h2>
+                </div>
+                <div class="body">
+                    <div class="row">
+                        <div class="col-md-3 col-xs-12">
+                            {% for label,value in chart_data %}
+                                <div class="row p-b-10">
+                                    <div class="col-sm-8">
+                                        <h6>{{ label }}:</h6>
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <h6>{{ value }}</h6>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        <div class="col-md-9 col-xs-12 ">
+                            <div id="bell_curve" class="ct-chart"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row clearfix">
+        <div class="col-lg-12 col-md-12">
+            <div class="card planned_task">
+                <div class="header">
+{#                    <h2>{{ krabucket.title }} KRA Bucket</h2>#}
+                </div>
+                <div class="body">
+                    <ul class="nav nav-tabs">
+                        <li class="nav-item"><a class="nav-link active show" data-toggle="tab" href="#tab1">Company's KRA</a></li>
+                        <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#tab2">Members' KRAs</a></li>
+                        <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#tab3">Bucket Settings</a></li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane show active" id="tab1">
+                            <div class="row m-b-20">
+                                <div class="col-sm-6">
+                                    <h6>Company's KRA</h6>
+                                </div>
+                                <div class="col-sm-6 text-right">
+{#                                    <a href="#" class="btn btn-default">Create KRA Bucket</a>#}
+                                </div>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-striped" role="table">
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Name</th>
+                                            <th>Description</th>
+                                            <th>Weight</th>
+                                            <th>Target</th>
+                                            <th>Actual</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% if krabucket.company_kra %}
+                                            {% for item in krabucket.company_kra.items.all %}
+                                                <tr>
+                                                    <td>{{ forloop.counter }}</td>
+                                                    <td>{{ item.name }}</td>
+                                                    <td>{{ item.description }}</td>
+                                                    <td>{{ item.weight }}</td>
+                                                    <td>{{ item.target }}</td>
+                                                    <td>{{ item.actual }}</td>
+                                                </tr>
+                                            {% endfor %}
+                                        {% else %}
+                                            <tr>
+                                                <td colspan="6" class="text-center">No item to display</td>
+                                            </tr>
+                                        {% endif %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="tab-pane" id="tab2">
+                            <div class="row m-b-20">
+                                <div class="col-sm-6">
+                                    <h6>Members' KRAs</h6>
+                                </div>
+                                <div class="col-sm-6 text-right">
+{#                                    <a href="#" class="btn btn-default">Create KRA</a>#}
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <div class="table-responsive">
+                                        <table class="table table-striped" role="table">
+                                            <thead>
+                                                <tr>
+                                                    <th>#</th>
+                                                    <th></th>
+                                                    <th>Name</th>
+                                                    <th>Manager</th>
+                                                    <th>Number of Items</th>
+                                                    <th>Status</th>
+                                                    <th>Rating</th>
+                                                    <th>Date Created</th>
+                                                    <th>Date Updated</th>
+                                                    <th></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for kra in krabucket.kras.all %}
+                                                    <tr>
+                                                        <td>{{ forloop.counter }}</td>
+                                                        <td>
+                                                            <img width="80px" height="80px" src="{{ kra.user.profile.photo.url }}" alt="{{ kra.user.get_full_name }}'s Photo">
+                                                        </td>
+                                                        <td>{{ kra.user.get_full_name | title }} ({{ kra.user.profile.auuid }})</td>
+                                                        <td>{{ kra.user.profile.manager.user.get_full_name | title }} ({{ kra.user.profile.manager.auuid }})</td>
+                                                        <td>
+                                                            {{ kra.items.count }}
+                                                        </td>
+                                                        <td>
+                                                            {% if kra.is_accepted %}
+                                                                Accepted
+                                                            {% else %}
+                                                                {{ kra.status }}
+                                                            {% endif %}
+                                                        </td>
+                                                        <td>
+                                                            {{ kra.rating.name }}
+                                                        </td>
+                                                        <td>{{ kra.date_created | date:"F d, Y H:i" }}</td>
+                                                        <td>{{ kra.date_updated | date:"F d, Y H:i" | default_if_none:"-" }}</td>
+                                                        <td>
+                                                            <a href="{% url 'kra:view-kra' kra_identifier=kra.identifier %}" class="btn btn-default">View</a>
+                                                        </td>
+                                                    </tr>
+                                                {% empty %}
+                                                    <tr>
+                                                        <td colspan="10" class="text-center">
+                                                            No item to display
+                                                        </td>
+                                                    </tr>
+                                                {% endfor %}
+
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tab-pane" id="tab3">
+                            <div class="row m-b-20">
+                                <div class="col-sm-6">
+                                    <h6>Bucket Settings</h6>
+                                </div>
+                                <div class="col-sm-6 text-right">
+{#                                    <a href="#" class="btn btn-default">Create KRA</a>#}
+                                </div>
+                            </div>
+                            <div class="row">
+                                <table class="table table-striped">
+                                    <tbody>
+                                        <tr>
+                                            <th>Title</th>
+                                            <td>{{ krabucket.title }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Year</th>
+                                            <td>{{ krabucket.year }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Created By</th>
+                                            <td>{{ krabucket.created_by.profile }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Last Updated By</th>
+                                            <td>{{ krabucket.updated_by.profile | default:"-" }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Status</th>
+                                            <td>{{ krabucket.status }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Self Assessment</th>
+                                            <td>
+                                                {% if krabucket.allow_self_assessment %}
+                                                    In progress
+                                                {% else %}
+                                                    Not In Progress
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th>Final Assessment</th>
+                                            <td>
+                                                {% if krabucket.allow_final_assessment %}
+                                                    In progress
+                                                {% else %}
+                                                    Not In Progress
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th>Created On</th>
+                                            <td>
+                                                {{ krabucket.date_created | date:"F d, Y H:i" }}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th>Last Updated On</th>
+                                            <td>
+                                                {{ krabucket.date_updated | date:"F d, Y H:i" | default:"-" }}
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block scripts %}
+    <script src="{% static 'theme/bundles/chartist.bundle.js' %}"></script>
+    <script src="{% static 'theme/js/chartist-plugin-drag.js' %}"></script>
+    <script>
+        let data = {
+            labels: [{% for label,value in chart_data %}'{{ label }}'{% if not forloop.last %}, {% endif %}{% endfor %}],
+            series: [{
+                name: 'CURVE',
+                data: [{% for label,value in chart_data %}{{ value }}{% if not forloop.last %}, {% endif %}{% endfor %}],
+            }]
+        };
+        options = {
+            lineSmooth: true,
+            height: "383px",
+            low: 0,
+            high: 'auto',
+            series: {
+                'CURVE': {
+                    showPoint: true,
+                },
+            },
+            axisY: {
+                labelInterpolationFnc: function(value) {
+                    let str_value = value+"";
+                    if (str_value.indexOf(".") < 0){
+                        return value
+                    }
+                    return "";
+                }
+            },
+            options: {
+                responsive: true,
+                legend: false
+            },
+
+            plugins: [
+                Chartist.plugins.drag({
+                    updateCallback: function (data) {
+                        console.log(data);
+                    }
+                })
+            ]
+        };
+        new Chartist.Line('#bell_curve', data, options);
+    </script>
+{% endblock %}

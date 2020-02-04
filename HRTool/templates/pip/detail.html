@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+{% load static %}
+{% block content %}
+    <div class="block-header">
+        <div class="row">
+            <div class="col-lg-5 col-md-8 col-sm-12">
+                <h2>
+                    <a href="javascript:void(0);" class="btn btn-xs btn-link btn-toggle-fullwidth">
+                        <i class="fa fa-arrow-left"></i>
+                    </a>
+                    View PIP
+                </h2>
+                <ul class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'dashboard' %}"><i class="icon-home"></i></a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'pip:management' %}">PIP Management</a></li>
+                    <li class="breadcrumb-item active">View PIP</li>
+                </ul>
+            </div>
+            <div class="col-lg-7 col-md-4 col-sm-12 text-right">
+                <a href="{% url 'p_i_p:download_pip_report' reference=pip.reference %}" class="btn btn-lg btn-default">Download Report</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row clearfix">
+        <div class="col-lg-3 col-sm-5 col-xs-12">
+            <div class="card planned_task">
+                <div class="body text-center">
+                    {% with pip.staff.profile as member %}
+                        <img src="{{ member.photo.url }}" alt="{{ member }}'s photo" class="rounded-circle"
+                         style="height: 100px; width: 100px"/>
+                        <br><br><br>
+                        <h6>{{ member }}</h6>
+                        <div class="text-left">
+                            <hr>
+                            <small class="text-muted">Department: </small>
+                            <p>{{ member.department }}</p>
+                            <hr>
+                            <small class="text-muted">Role: </small>
+                            <p>{% if member.is_ceo %}CEO{% else %}{{ member.role | default:"-" }}{% endif %}</p>
+                            <hr>
+                            <small class="text-muted">Email address: </small>
+                            <p>{{ member.user.email }}</p>
+                            <hr>
+                            <small class="text-muted">Phone: </small>
+                            <p>{{ member.phone }}</p>
+                            <hr>
+                            <small class="text-muted">PIP: </small>
+                            <p>{{ member.user.pips.count }} of {{ member.company.config.pip_threshold | default:2 }}</p>
+                            <div class="progress progress-xs m-b-25 m-t-25">
+                                <div class="progress-bar" role="progressbar" aria-valuenow="{{ member.user.pips.count }}" aria-valuemin="0" aria-valuemax="{{ member.company.config.pip_threshold | default:2 }}" style="width: {{ member.pip_progress | floatformat:0 }}%;">
+                                    <span class="sr-only">{{ member.user.pips.count }} of {{ member.company.config.pip_threshold | default:2 }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    {% endwith %}
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-9 col-sm-7 col-xs-12">
+            <div class="card planned_task">
+                <div class="header">
+                    PIP Details
+                </div>
+                <div class="body">
+                    <div class="row">
+                        <div class="col-sm-8 col-xs-12">
+                            <b>Description</b>:<br>
+                            {{ pip.description | linebreaks }}
+                        </div>
+                        <div class="col-sm-4 col-xs-12">
+                            <p>
+                                <b>Raised by:</b> <br>{{ pip.line_manager.profile }}
+                            </p>
+                            <hr>
+                            <p>
+                                <b>Date Raised:</b> <br>{{ pip.date_created | date:"F d, Y H:i" }}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-6 col-xs-12">
+                            <h6>Issues</h6>
+                            <ol type="1">
+                                {% for issue in pip.issues.all %}
+                                    <li>
+                                        {{ issue.description | linebreaks }}
+                                    </li>
+                                {% endfor %}
+                            </ol>
+                        </div>
+                        <div class="col-lg-6 col-xs-12">
+                            <h6>Expectations</h6>
+                            <ol type="1">
+                                {% for expectation in pip.expectations.all %}
+                                    <li>
+                                        {{ expectation.description | linebreaks }}
+                                    </li>
+                                {% endfor %}
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

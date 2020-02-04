@@ -1,0 +1,18 @@
+.overview {
+    display: inline-flex;
+    width: 97%;
+    margin-left: 2%;
+}
+
+.overview li:first-child {
+    width: 30%
+}
+
+.overview li:last-child {
+    width: 70%;
+    margin-left: 30px
+}
+
+.overview p {
+    font-size: 14px;
+}

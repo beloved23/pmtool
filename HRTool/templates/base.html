@@ -1,0 +1,309 @@
+{% load static %}
+{% load menutags %}
+<!doctype html>
+<html lang="en">
+
+<head>
+    <title>:: Right Seat :: {{ user.profile.company.name | title }}</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <meta name="description" content="Right Seat Bootstrap 4x Admin Template">
+    <meta name="author" content="WrapTheme, design by: ThemeMakker.com">
+
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <!-- VENDOR CSS -->
+    {% block pre_styles %}
+
+    {% endblock %}
+    <link rel="stylesheet" href="{% static 'theme/vendor/bootstrap/css/bootstrap.min.css' %}"/>
+    <link rel="stylesheet" href="{% static 'theme/vendor/font-awesome/css/font-awesome.min.css' %}"/>
+    {% block styles %}{% endblock %}
+    <link rel="stylesheet" href="{% static 'theme/vendor/toastr/toastr.min.css' %}">
+
+    <style>
+        {% if not user.profile.company.config.theme %}
+            :root{
+                --theme: #8e000b;
+            }
+        {% else %}
+            :root{
+                --theme: {{ user.profile.company.config.theme }};
+            }
+        {% endif %}
+    </style>
+    <!-- MAIN CSS -->
+    <link rel="stylesheet" href="{% static 'theme/css/frontend.css' %}">
+    <link rel="stylesheet" href="{% static 'theme/css/color_skins.css' %}">
+    <style>
+        body{
+            overflow-x: hidden;
+        }
+    </style>
+</head>
+<body class="theme-blush">
+
+<!-- Page Loader -->
+<div class="page-loader-wrapper">
+    <div class="loader">
+        <div class="m-t-30">
+            {% if user.profile.company.config.logo %}
+                <img src="{{ user.profile.company.config.logo.url }}" width="80" height="80" alt="{{ user.profile.company.name }} logo">
+            {% else %}
+                <img src="{% static 'images/logo-icon.png' %}" width="48" height="48" alt="Right Seat logo">
+            {% endif %}
+        </div>
+        <p style="color: var(--theme);">Please wait...</p>
+    </div>
+</div>
+<!-- Overlay For Sidebars -->
+
+<div id="wrapper">
+
+    <nav class="navbar navbar-fixed-top">
+        <div class="container-fluid">
+            <div class="navbar-btn">
+                <button type="button" class="btn-toggle-offcanvas"><i class="lnr lnr-menu fa fa-bars"></i></button>
+            </div>
+            <div class="navbar-brand">
+                <a href="{% url 'dashboard' %}">
+                    {% if user.profile.company.config.logo %}
+                        <img src="{{ user.profile.company.config.logo.url }}" class="img-responsive logo" alt="{{ user.profile.company.name }} logo" style="max-height: 40px">
+                    {% else %}
+                        <img src="{% static 'images/logo.png' %}" alt="Right Seat Logo" class="img-responsive logo" style="max-height: 40px">
+                    {% endif %}
+                </a>
+            </div>
+
+            <div class="navbar-right">
+                <div id="navbar-menu">
+                    <ul class="nav navbar-nav">
+{#                        <li class="dropdown">#}
+{#                            <a href="javascript:void(0);" class="dropdown-toggle icon-menu" data-toggle="dropdown">#}
+{#                                <i class="icon-bell"></i>#}
+{#                                <span class="notification-dot"></span>#}
+{#                            </a>#}
+{#                            <ul class="dropdown-menu notifications animated shake">#}
+{#                                <li class="header"><strong>You have 4 new Notifications</strong></li>#}
+{#                                <li>#}
+{#                                    <a href="javascript:void(0);">#}
+{#                                        <div class="media">#}
+{#                                            <div class="media-left">#}
+{#                                                <i class="icon-info text-danger"></i>#}
+{#                                            </div>#}
+{#                                            <div class="media-body">#}
+{#                                                <p class="text">Company 1's Subscription plan expires in 5days</p>#}
+{#                                                <span class="timestamp">January 19, 2019</span>#}
+{#                                            </div>#}
+{#                                        </div>#}
+{#                                    </a>#}
+{#                                </li>#}
+{#                                <li>#}
+{#                                    <a href="javascript:void(0);">#}
+{#                                        <div class="media">#}
+{#                                            <div class="media-left">#}
+{#                                                <i class="icon-info text-danger"></i>#}
+{#                                            </div>#}
+{#                                            <div class="media-body">#}
+{#                                                <p class="text">Company 1's Subscription plan expires in 5days</p>#}
+{#                                                <span class="timestamp">January 19, 2019</span>#}
+{#                                            </div>#}
+{#                                        </div>#}
+{#                                    </a>#}
+{#                                </li>#}
+{#                                <li>#}
+{#                                    <a href="javascript:void(0);">#}
+{#                                        <div class="media">#}
+{#                                            <div class="media-left">#}
+{#                                                <i class="icon-info text-danger"></i>#}
+{#                                            </div>#}
+{#                                            <div class="media-body">#}
+{#                                                <p class="text">Company 1's Subscription plan expires in 5days</p>#}
+{#                                                <span class="timestamp">January 19, 2019</span>#}
+{#                                            </div>#}
+{#                                        </div>#}
+{#                                    </a>#}
+{#                                </li>#}
+{#                                <li>#}
+{#                                    <a href="javascript:void(0);">#}
+{#                                        <div class="media">#}
+{#                                            <div class="media-left">#}
+{#                                                <i class="icon-info text-danger"></i>#}
+{#                                            </div>#}
+{#                                            <div class="media-body">#}
+{#                                                <p class="text">Company 1's Subscription plan expires in 5days</p>#}
+{#                                                <span class="timestamp">January 19, 2019</span>#}
+{#                                            </div>#}
+{#                                        </div>#}
+{#                                    </a>#}
+{#                                </li>#}
+{#                            </ul>#}
+{#                        </li>#}
+                        <li><a href="{% url 'change-password' %}" class="icon-menu d-block"><i class="icon-lock"></i></a></li>
+                        <li><a href="{% url 'logout' %}" class="icon-menu d-block"><i class="icon-login"></i></a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+    </nav>
+
+    <div id="left-sidebar" class="sidebar">
+        <div class="sidebar-scroll">
+            <div class="user-account">
+                <img src="{{ user.profile.photo.url }}" class="rounded-circle user-photo" alt="User Profile Picture">
+                <div class="dropdown">
+                    <span>Welcome,</span>
+                    <a href="javascript:void(0);" class="dropdown-toggle user-name" data-toggle="dropdown"><strong>{{ user.get_full_name | title }}</strong></a>
+                    <ul class="dropdown-menu dropdown-menu-right account">
+                        <li><a href="{% url 'change-password' %}" style="font-size: 10px">
+                            <i class="icon-lock"></i> <span>Change Password</span>
+                        </a></li>
+                        <li class="divider"></li>
+                        <li><a href="{% url 'logout' %}"><i class="icon-power"></i>Logout</a></li>
+                    </ul>
+                </div>
+                <hr>
+                <ul class="row list-unstyled">
+                    <li class="col-4">
+                        <small>KRAs</small>
+                        <h6>{{ user.kras.count }}</h6>
+                    </li>
+                    <li class="col-4">
+                        <small>Tasks</small>
+                        <h6>{{ user.profile.tasks.count }}</h6>
+                    </li>
+                    <li class="col-4">
+                        <small>PIPs</small>
+                        <h6>{{ user.pips.count }}</h6>
+                    </li>
+                </ul>
+            </div>
+            <!-- Nav tabs -->
+            <ul class="nav nav-tabs">
+                <li class="nav-item"><a class="nav-link active" data-toggle="tab" href="#menu">Menu</a></li>
+{#                <li class="nav-item"><a class="nav-link" data-toggle="tab" href="index.html#Chat"><i class="icon-book-open"></i></a></li>#}
+{#                <li class="nav-item"><a class="nav-link" data-toggle="tab" href="index.html#setting"><i class="icon-settings"></i></a></li>#}
+{#                <li class="nav-item"><a class="nav-link" data-toggle="tab" href="index.html#question"><i class="icon-question"></i></a></li>                #}
+            </ul>
+
+            <!-- Tab panes -->
+            <div class="tab-content p-l-0 p-r-0">
+                <div class="tab-pane active" id="menu">
+                    <nav id="left-sidebar-nav" class="sidebar-nav">
+                        <ul id="main-menu" class="metismenu">
+                            <li class="{% active 'dashboard' %}">
+                                <a href="{% url 'dashboard' %}"><i class="fa fa-dashboard"></i>
+                                    <span> Dashboard</span>
+                                </a>
+                            </li>
+                            {% if perms.company.can_view_config or perms.company.can_change_config or user.is_staff %}
+                                <li class="{% active 'company:config' %}">
+                                    <a href="{% url 'company:config' %}">
+                                        <i class="fa fa-gears"></i> <span> Company Configurations</span>
+                                    </a>
+                                </li>
+                            {% endif %}
+                            {% if user.profile.is_ceo or user.is_staff or perms.kra.can_view_companykra or perms.kra.can_add_companykra or perms.kra.can_delete_companykra or perms.kra.can_add_krabucket or perms.kra.can_view_krabucket %}
+                                <li class="{% active 'kra:configuration' %}">
+                                    <a href="{% url 'kra:configuration' %}">
+                                        <i class="fa fa-gears"></i> <span> KRA Configurations</span>
+                                    </a>
+                                </li>
+                            {% endif %}
+                            {% if perms.company.can_view_department or perms.company.can_add_department or perms.company.can_delete_department or user.is_staff %}
+                                <li class="{% active 'company:departments' %}">
+                                    <a href="{% url 'company:departments' %}">
+                                        <i class="fa fa-folder"></i> <span> Manage Departments</span>
+                                    </a>
+                                </li>
+                            {% elif user.profile.directing_department %}
+                                <li class="{% url 'company:view-department' pk=user.profile.directing_department.pk %}">
+                                    <a href="{% url 'company:view-department' pk=user.profile.directing_department.pk %}">
+                                        <i class="fa fa-folder"></i> <span> View Department</span>
+                                    </a>
+                                </li>
+                            {% endif %}
+                            {% if perms.company.can_view_role or perms.company.can_add_role or perms.company.can_delete_role or user.is_staff %}
+                                <li class="{% active 'company:roles' %}">
+                                    <a href="{% url 'company:roles' %}">
+                                        <i class="fa fa-bandcamp"></i> <span> Manage Roles</span>
+                                    </a>
+                                </li>
+                            {% endif %}
+                            {% if perms.account.can_view_profile or perms.account.can_add_profile or perms.account.can_delete_profile or user.is_staff %}
+                                <li class="{% active 'company:members' %}">
+                                    <a href="{% url 'company:members' %}">
+                                        <i class="fa fa-users"></i> <span> Manage Staff Members</span>
+                                    </a>
+                                </li>
+                            {% endif %}
+                            <li class="{% active 'kra:management' %}">
+                                <a href="{% url 'kra:management' %}">
+                                    <i class="fa fa-book"></i> <span> KRA Management</span>
+                                </a>
+                            </li>
+                            <li class="{% active 'task:management' %}">
+                                <a href="{% url 'task:management' %}">
+                                    <i class="fa fa-tasks"></i> <span> Tasks</span>
+                                </a>
+                            </li>
+                            <li class="{% active 'pip:management' %}{% active 'pip:view' %}{% active 'kra:create' %}">
+                                <a href="{% url 'pip:management' %}">
+                                    <i class="fa fa-info-circle"></i> <span> PIPs</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="main-content">
+        <div class="container-fluid">
+            {% block content %}
+
+            {% endblock %}
+        </div>
+    </div>
+
+</div>
+<!-- Javascript -->
+<script src="{% static 'theme/bundles/libscripts.bundle.js' %}"></script>
+<script src="{% static 'theme/bundles/vendorscripts.bundle.js' %}"></script>
+<script src="{% static 'theme/vendor/toastr/toastr.js' %}"></script>
+<script src="{% static 'theme/js/mainscripts.bundle.js' %}"></script>
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+{% block scripts %}
+{% endblock %}
+<script>
+    $(function () {
+        toastr.options = {
+            "timeOut": "5000",
+            "closeButton": true,
+            "positionClass": "toast-bottom-right",
+            "onCloseClick": function () {
+            }
+        };
+        {% if not user.profile.password_changed %}
+            toastr['info']("You need to set a new password.<br><a href=\"{% url 'change-password' %}\">Click here</a> to set a new one");
+        {% endif %}
+        {% for message in messages %}
+            toastr['{{ message.tags }}']("{{ message }}");
+        {% endfor %}
+    })
+</script>
+
+{#<div id="toast-container" class="toast-bottom-right">#}
+{#    <div class="toast toast-success" aria-live="assertive" style="">#}
+{#        <button type="button" class="toast-close-button" role="button">×</button>#}
+{#        <div class="toast-message">This is success info</div>#}
+{#    </div>#}
+{#    <div class="toast toast-error" aria-live="assertive" style="">#}
+{#        <button type="button" class="toast-close-button" role="button">×</button>#}
+{#        <div class="toast-message">This is error info</div>#}
+{#    </div>#}
+{#</div>#}
+</body>
+</html>

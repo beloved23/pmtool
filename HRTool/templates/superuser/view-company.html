@@ -1,0 +1,503 @@
+{% extends 'admin-base.html' %}
+{% load static %}
+{% load widget_tweaks %}
+{% block styles %}
+    <link rel="stylesheet" href="{% static 'theme/vendor/jquery-datatable/dataTables.bootstrap4.min.css' %}">
+    <link rel="stylesheet" href="{% static 'theme/vendor/jquery-datatable/fixedeader/dataTables.fixedcolumns.bootstrap4.min.css' %}">
+    <link rel="stylesheet" href="{% static 'theme/vendor/jquery-datatable/fixedeader/dataTables.fixedheader.bootstrap4.min.css' %}">
+    <link rel="stylesheet" href="{% static 'theme/vendor/sweetalert/sweetalert.css' %}">
+    <link rel="stylesheet" href="{% static 'theme/vendor/bootstrap-datepicker/css/bootstrap-datepicker3.min.css' %}">
+{% endblock %}
+{% block content %}
+    <div class="block-header">
+        <div class="row">
+            <div class="col-lg-6 col-md-8 col-sm-12">
+                <h2>
+                    <a href="{% url 'superuser:companies' %}" class="btn btn-xs btn-link btn-toggle-fullwidth"><i class="fa fa-arrow-left"></i></a> {{ company.name | title }}
+                </h2>
+                <ul class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'superuser:dashboard' %}"><i class="icon-home"></i></a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'superuser:companies' %}">Companies</a></li>
+                    <li class="breadcrumb-item active">{{ company.name | title }}</li>
+                </ul>
+            </div>
+            <div class="col-lg-6 col-md-4 col-sm-12 text-right">
+            </div>
+        </div>
+    </div>
+    <div class="row clearfix">
+        <div class="col-md-4 col-sm-5 col-xs-12">
+            <div class="card">
+                <div class="header">
+                    <h2>Company Information</h2>
+                </div>
+                <div class="body text-center">
+                    <div class="profile-image m-b-15">
+                        <img style="width: 140px; height: 140px;" src="{% static 'theme/images/user.png' %}" class="rounded-circle" alt="">
+                    </div>
+                    <div>
+                        <h4 class="m-b-0"><strong>{{ company.name | title }}</strong></h4>
+                        <span>
+                            {% if company.is_active %}
+                                Active
+                            {% else %}
+                                Inactive
+                            {% endif %}
+                        </span>
+                    </div>
+                    <div class="m-t-15">
+                        <button class="btn btn-primary" onclick="window.location.href='{% url 'superuser:edit-company' pk=company.pk %}';">Edit</button>
+                        {% if company.is_active %}
+                            <button class="btn btn-outline-danger" onclick="showAlert('Deactivating this company\'s would cause her members not to be able to login again.', '{% url 'superuser:toggle-company-status' pk=company.pk %}')">Deactivate</button>
+                        {% else %}
+                            <button class="btn btn-outline-success" onclick="showAlert('Activating this company\'s would cause her members to be able to login again.', '{% url 'superuser:toggle-company-status' pk=company.pk %}')">Activate</button>
+                        {% endif %}
+                        <button class="btn btn-danger" onclick="showAlert('Deleting this company\'s account would also delete every data related to it.', '{% url 'superuser:delete-company' pk=company.pk %}')">
+                            Delete
+                        </button>
+                    </div>
+                    <div class="progress-container progress-primary m-b-25 m-t-20">
+                        <span class="progress-badge">Subscription Usage Status</span>
+                        <div class="progress">
+                            <div class="progress-bar" role="progressbar" aria-valuenow="{{ company.get_plan_usage }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ company.get_plan_usage }}%;">
+                                <span class="progress-value bg-warning">{{ company.get_plan_usage | floatformat:0 }}%</span>
+                            </div>
+                        </div>
+                    </div>
+                    <ul class=" list-unstyled basic-list text-left">
+                        <li>Created By:<span class="badge badge-primary">{{ company.created_by.get_full_name | title }}</span></li>
+                        <li>Plan:<span class="badge badge-primary">{{ company.plan }}</span></li>
+                        <li>Expiry:<span class="badge-danger badge">{{ company.config.subscription.expiry }}</span></li>
+                        <li>Created:<span class="badge-success badge">{{ company.date_created | date:'d F, Y' }}</span></li>
+                        <li>Updated:<span class="badge-success badge">{{ company.date_updated | date:'d F, Y' }}</span></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="card">
+                <div class="header">
+                    <h2>Company's CEO</h2>
+                </div>
+                <div class="body text-center">
+                    <div class="profile-image m-b-15">
+                        <img style="width: 140px; height: 140px;" src="{{ company.get_ceo.photo.url }}" class="rounded-circle" alt="">
+                    </div>
+                    <div>
+                        <h4 class="m-b-0"><strong>{{ company.get_ceo.user.last_name }}</strong> {{ company.get_ceo.user.first_name }}</h4>
+                        <span>
+                            CEO
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="header">
+                    <h2>Company's HRD</h2>
+                </div>
+                <div class="body text-center">
+                    <div class="profile-image m-b-15">
+                        <img style="width: 140px; height: 140px;" src="{{ company.get_hrd.photo.url }}" class="rounded-circle" alt="">
+                    </div>
+                    <div>
+                        <h4 class="m-b-0"><strong>{{ company.get_hrd.user.last_name }}</strong> {{ company.get_hrd.user.first_name }}</h4>
+                        <span>
+                            HRD
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-8 col-sm-7 col-xs-12">
+            <div class="card">
+                <div class="header">
+                    <h2>Company's Data</h2>
+                </div>
+                <div class="body">
+                    <ul class="nav nav-tabs">
+                        <li class="nav-item"><a class="nav-link active show" data-toggle="tab" href="#Members">Members ({{ company.members.count }})</a></li>
+                        <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#Departments">Departments ({{ company.departments.count }})</a></li>
+                        <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#Roles">Roles ({{ company.roles.count }})</a></li>
+                        <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#Subscriptions">Subscriptions ({{ company.subscriptions.count }})</a></li>
+                        <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#Configuration">Configuration</a></li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane show active" id="Members">
+                            <div class="table-responsive">
+                                <table class="table table-bordered table-striped table-hover dataTable js-exportable">
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th></th>
+                                            <th>Name</th>
+                                            <th>Username</th>
+                                            <th>Department</th>
+                                            <th>Date Created</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for member in company.members.all %}
+                                            <tr>
+                                                <td>{{ forloop.counter }}</td>
+                                                <td>
+                                                    {% if member.photo %}
+                                                        <img src="{{ member.photo.url }}" alt="" style="width: 80px; height: 80px;" class="rounded-circle">
+                                                    {% else %}
+                                                        -
+                                                    {% endif %}
+                                                </td>
+                                                <td>
+                                                    {{ member.user.get_full_name | title }}
+                                                </td>
+                                                <td>
+                                                    {{ member.auuid }}
+                                                </td>
+                                                <td>
+                                                    {{ member.department }}
+                                                </td>
+                                                <td>
+                                                    {{ member.date_created | date:"d F, Y" }}
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+
+                                    </tbody>
+                                    <tfoot>
+                                        <tr>
+                                            <th>#</th>
+                                            <th></th>
+                                            <th>Name</th>
+                                            <th>Username</th>
+                                            <th>Department</th>
+                                            <th>Date Created</th>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="tab-pane" id="Departments">
+                            <table class="table table-bordered table-striped table-hover dataTable js-exportable">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Name</th>
+                                        <th>Date Created</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for department in company.departments.all %}
+                                        <tr>
+                                            <td>{{ forloop.counter }}</td>
+                                            <td>
+                                                {{ department.name | title }}
+                                            </td>
+                                            <td>
+                                                {{ department.date_created | date:"d F, Y" }}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Name</th>
+                                        <th>Date Created</th>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                        <div class="tab-pane" id="Roles">
+                            <table class="table table-bordered table-striped table-hover dataTable js-exportable">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Name</th>
+                                        <th>Date Created</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for role in company.roles.all %}
+                                        <tr>
+                                            <td>{{ forloop.counter }}</td>
+                                            <td>
+                                                {{ role.name | title }}
+                                            </td>
+                                            <td>
+                                                {{ role.date_created | date:"d F, Y" }}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Name</th>
+                                        <th>Date Created</th>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                        <div class="tab-pane" id="Subscriptions">
+                            <button class="btn btn-outline-secondary p-b-10" onclick="subscription();">Create new subscription</button>
+                            <table class="table table-bordered table-striped table-hover dataTable js-exportable">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Plan</th>
+                                        <th>Created By</th>
+                                        <th>Status</th>
+                                        <th>Expiry</th>
+                                        <th>Date Created</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for subscription in company.subscriptions.all %}
+                                        <tr>
+                                            <td>{{ forloop.counter }}</td>
+                                            <td>
+                                                {{ subscription.plan | title }}
+                                            </td>
+                                            <td>
+                                                {{ subscription.created_by.get_full_name | title }}
+                                            </td>
+                                            <td>
+                                                {% if subscription.is_expired %}
+                                                    <span class="text-danger">Expired</span>
+                                                {% else %}
+                                                    <span class="text-success">Active</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                {{ subscription.expiry | date:"d F, Y" }}
+                                            </td>
+                                            <td>
+                                                {{ subscription.date_created | date:"d F, Y" }}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Plan</th>
+                                        <th>Created By</th>
+                                        <th>Status</th>
+                                        <th>Expiry</th>
+                                        <th>Date Created</th>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                        <div class="tab-pane" id="Configuration">
+                            <h6>Configuration</h6>
+                            <p>Logo</p>
+                            {% if company.config.logo %}
+                                <img src="{{ company.config.logo.url }}" alt="" width="50px" height="50px">
+                            {% else %}
+                                <img src="#" alt="" width="50px" height="50px">
+                            {% endif %}
+                            <p>Background Image</p>
+                            {% if company.config.background_image %}
+                                <img src="{{ company.config.background_image.url }}" alt="" width="50px" height="50px">
+                            {% else %}
+                                <img src="#" alt="" width="50px" height="50px">
+                            {% endif %}
+                            <p>Theme</p>
+                            {% if company.config.theme %}
+                                <span style="height: 50px; width: 50px; background: {{ company.config.theme }}"></span>
+                            {% else %}
+                                <div style="height: 50px; width: 50px; background: var(--theme)"></div>
+                            {% endif %}
+                            <p>Year start</p>
+                            <span>{% if company.config.year_start %}{{ company.config.year_start }}{% else %}-{% endif %}</span>
+                            <p>PIP Threshold</p>
+                            <span>{% if company.config.pip_threshold %}{{ company.config.pip_threshold }}{% else %}-{% endif %}</span>
+                            <br>
+                            <br>
+                            <h5>Ratings</h5>
+                            <table role="table" class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Name</th>
+                                        <th>Threshold</th>
+                                        <th>Date Created</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for rating in company.config.ratings.all %}
+                                        <tr>
+                                            <td>{{ forloop.counter }}</td>
+                                            <td>{{ rating.name }}</td>
+                                            <td>{{ rating.threshold }}</td>
+                                            <td>{{ rating.date_created | date:'F d, Y' }}</td>
+                                        </tr>
+                                    {% endfor %}
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="hidden" id="subcriptionForm" style="display:none;">
+        <form action="{% url 'superuser:subscribe-company' pk=company.pk %}">
+            {% csrf_token %}
+            {% for field in subscriptionForm %}
+                {% if not field.is_hidden %}
+                    {% if field == subscriptionForm.expiry %}
+                        <div class="text-left">{{ field.label_tag }}</div>
+                        <div class="input-group mb-3">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="icon-calendar"></i></span>
+                            </div>
+                            {% render_field field class+="form-control date" placeholder="YYYY-MM-DD" %}
+                        </div>
+                    {% else %}
+                        <div class="form-group text-left">
+                            {{ field.label_tag }}
+                            {% render_field field class+="form-control" placeholder=field.label %}
+                            {% if field.errors %}
+                                <div class="text-danger">{{ field.errors }}</div>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                {% else %}
+                    {{ field }}
+                {% endif %}
+            {% endfor %}
+
+        </form>
+    </div>
+{% endblock %}
+{% block scripts %}
+    <script src="{% static 'theme/bundles/datatablescripts.bundle.js' %}"></script>
+    <script src="{% static 'theme/vendor/jquery-datatable/buttons/dataTables.buttons.min.js' %}"></script>
+    <script src="{% static 'theme/vendor/jquery-datatable/buttons/buttons.bootstrap4.min.js' %}"></script>
+    <script src="{% static 'theme/vendor/jquery-datatable/buttons/buttons.colVis.min.js' %}"></script>
+    <script src="{% static 'theme/vendor/jquery-datatable/buttons/buttons.html5.min.js' %}"></script>
+    <script src="{% static 'theme/vendor/jquery-datatable/buttons/buttons.print.min.js' %}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@8.17.1/dist/sweetalert2.all.min.js"></script>
+    <script src="{% static 'theme/js/pages/tables/jquery-datatable.js' %}"></script>
+    <script src="{% static 'theme/vendor/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
+    <script src="{% static 'theme/vendor/jquery-inputmask/jquery.inputmask.bundle.js' %}"></script>
+    <script src="{% static 'theme/vendor/jquery.maskedinput/jquery.maskedinput.min.js' %}"></script>
+{#    <script>#}
+{#        $(function () {#}
+{#            //Date#}
+{#            $('.date').inputmask('yyyy-mm-dd', { placeholder: '____-__-__' });#}
+{#        });#}
+{##}
+{#    </script>#}
+    <script>
+        function subscription(){
+            swal.fire({
+                title: "Create subscription plan",
+                html: $("#subcriptionForm").html(),
+                showCancelButton: true,
+                confirmButtonText: 'Submit',
+                cancelButtonText: "Cancel",
+                preConfirm: function () {
+                    console.log($('.swal2-content form').serialize());
+                    console.log($('.swal2-content form').serializeArray());
+                    data = $('.swal2-content form').serializeArray();
+                    var allow = true;
+                    for (i = 0; i < data.length; i++){
+                        if (data[i].value == ""){
+                            allow = false;
+                            break;
+                        }
+                    }
+                    if(allow){
+                        return new Promise(function (resolve) {
+                            $.post(
+                                $('.swal2-content form').attr("action"),
+                                $('.swal2-content form').serialize(),
+                                function (){}
+                            ).done(
+                                function (data) {
+                                    resolve(data);
+                                }
+                            ).fail(
+                                function (){
+                                    swal.fire({
+                                        type: 'error',
+                                        title: 'Error!',
+                                        html: "An unexpected error occurred, please try again"
+                                    });
+                                }
+                            );
+                        });
+                    }else{
+                        reject("All fields are required");
+                    }
+                    return false;
+                },
+                onOpen: function (){
+                    $('.date').inputmask('yyyy-mm-dd', { placeholder: '____-__-__' });
+                }
+            }).then(function (response) {
+                if (typeof response.dismiss == 'undefined'){
+                    if(typeof response.value.error == 'undefined'){
+                        swal.fire({
+                            type: 'success',
+                            title: 'Success!',
+                            html: "Subscription created successfully"
+                        }).then(function (r){
+                            window.location.reload();
+                        });
+                    }else{
+                        swal.fire({
+                            type: 'error',
+                            title: 'Error!',
+                            html: "Subscription could not be created, confirm that all fields are correctly filled"
+                        });
+                    }
+                }
+            }).catch(swal.noop);
+        }
+        function showAlert(message, url){
+            swal.fire({
+              title: "Are you sure?",
+              text: message,
+              icon: "warning",
+              showCancelButton: true,
+            }).then((willDelete) => {
+              if(typeof willDelete.dismiss == 'undefined'){
+                return new Promise(function (resolve) {
+                    $.get(url, function (){})
+                    .done(function (data) {
+                        resolve(data);
+                    }).fail(function (){
+                        swal.fire({
+                            type: 'error',
+                            title: 'Error!',
+                            html: "An unexpected error occurred, please try again"
+                        });
+                    });
+                });
+              }
+            }).then(results => {
+                console.log(results);
+                if (results){
+                    swal.fire({
+                      title: "Success",
+                      text: "Operation successful!",
+                      type: "success",
+                      button: "Close",
+                    }).then(function (){
+                        window.location.reload();
+                    });
+                }
+            }).catch(err => {
+              if (err) {
+                swal("Oops!", "Something went wrong while performing your request", "error");
+              } else {
+                swal.stopLoading();
+                swal.close();
+              }
+            });
+        }
+    </script>
+{% endblock %}

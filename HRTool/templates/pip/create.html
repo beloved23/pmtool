@@ -1,0 +1,166 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+{% load static %}
+{% block content %}
+    <div class="block-header">
+        <div class="row">
+            <div class="col-lg-5 col-md-8 col-sm-12">
+                <h2>
+                    <a href="javascript:void(0);" class="btn btn-xs btn-link btn-toggle-fullwidth">
+                        <i class="fa fa-arrow-left"></i>
+                    </a>
+                    Create PIP
+                </h2>
+                <ul class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'dashboard' %}"><i class="icon-home"></i></a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'pip:management' %}">PIP Management</a></li>
+                    <li class="breadcrumb-item active">Create PIP</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="row clearfix">
+        <div class="col-lg-3 col-sm-5 col-xs-12">
+            <div class="card planned_task">
+                <div class="body text-center">
+                    <img src="{{ member.photo.url }}" alt="{{ member }}'s photo" class="rounded-circle"
+                         style="height: 100px; width: 100px"/>
+                    <br><br><br>
+                    <h6>{{ profile }}</h6>
+                    <div class="text-left">
+                        <hr>
+                        <small class="text-muted">Department: </small>
+                        <p>{{ member.department }}</p>
+                        <hr>
+                        <small class="text-muted">Role: </small>
+                        <p>{% if member.is_ceo %}CEO{% else %}{{ member.role | default:"-" }}{% endif %}</p>
+                        <hr>
+                        <small class="text-muted">Email address: </small>
+                        <p>{{ member.user.email }}</p>
+                        <hr>
+                        <small class="text-muted">Phone: </small>
+                        <p>{{ member.phone }}</p>
+                        <hr>
+                        <small class="text-muted">PIP: </small>
+                        <p>{{ member.user.pips.count }} of {{ member.company.config.pip_threshold | default:2 }}</p>
+                        <div class="progress progress-xs m-b-25 m-t-25">
+                            <div class="progress-bar" role="progressbar" aria-valuenow="{{ member.user.pips.count }}" aria-valuemin="0" aria-valuemax="{{ member.company.config.pip_threshold | default:2 }}" style="width: {{ member.pip_progress | floatformat:0 }}%;">
+                                <span class="sr-only">{{ member.user.pips.count }} of {{ member.company.config.pip_threshold | default:2 }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-9 col-sm-7 col-xs-12">
+            <div class="card planned_task">
+                <div class="header">
+                    Create PIP
+                </div>
+                <div class="body">
+                    <form action="" method="post">
+                        {% csrf_token %}
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                {{ form.non_field_errors.as_ul }}
+                            </div>
+                        {% endif %}
+                        {{ issuesForm.management_form }}
+                        {{ expectationsForm.management_form }}
+                        {% if issuesForm.non_form_errors %}
+                            <div class="alert alert-danger">
+                                {{ issuesForm.non_form_errors.as_ul }}
+                            </div>
+                        {% endif %}
+                        {% if expectationsForm.non_form_errors %}
+                            <div class="alert alert-danger">
+                                {{ expectationsForm.non_form_errors.as_ul }}
+                            </div>
+                        {% endif %}
+                        <div class="row">
+                            <div class="col-sm-12">
+                                {% for field in form %}
+                                    <div class="form-group">
+                                        {{ field.label_tag }}
+                                        {% render_field field class+="form-control" rows="5" style="resize: none" %}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-6 col-xs-12">
+                                <h6>Issues</h6>
+                                <ol type="1">
+                                    {% for f in issuesForm.forms %}
+                                        {% for field in f.visible_fields %}
+                                            <li class="formset_row">
+                                                {% if forloop.first %}
+                                                    {% for hidden in f.hidden_fields %}
+                                                        {{ hidden }}
+                                                    {% endfor %}
+                                                {% endif %}
+                                                {{ field.label_tag }}
+                                                {% render_field field rows="5" style+="resize: none" class+="form-control" %}
+                                                {% if field.errors %}
+                                                    <div class="alert alert-danger">
+                                                        {{ field.errors.as_ul }}
+                                                    </div>
+                                                {% endif %}
+                                            </li>
+                                        {% endfor %}
+                                    {% endfor %}
+                                </ol>
+                            </div>
+                            <div class="col-lg-6 col-xs-12">
+                                <h6>Expectations</h6>
+                                <ol type="1">
+                                    {% for f in expectationsForm.forms %}
+                                        {% for field in f.visible_fields %}
+                                            <li class="formset_row2">
+                                                {% if forloop.first %}
+                                                    {% for hidden in f.hidden_fields %}
+                                                        {{ hidden }}
+                                                    {% endfor %}
+                                                {% endif %}
+                                                {{ field.label_tag }}
+                                                {% render_field field rows="5" style+="resize: none" class+="form-control" %}
+                                                {% if field.errors %}
+                                                    <div class="alert alert-danger">
+                                                        {{ field.errors.as_ul }}
+                                                    </div>
+                                                {% endif %}
+                                            </li>
+                                        {% endfor %}
+                                    {% endfor %}
+                                </ol>
+
+                            </div>
+                        </div>
+                        <input type="submit" value="Submit" name="action" class="btn btn-lg btn-default">
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block scripts %}
+    <script src="{% static 'scripts/jquery.formset.js' %}"></script>
+    <script type="text/javascript">
+        $('.formset_row').formset({
+            addText: 'add more',
+            deleteText: 'remove',
+            addCssClass: "btn btn-default add-row mt-2",
+            deleteCssClass: "text-danger add-row",
+            prefix: 'issues'
+        });
+        $('.formset_row2').formset({
+            addText: 'add more',
+            deleteText: 'remove',
+            addCssClass: "btn btn-default add-row mt-2",
+            deleteCssClass: "text-danger add-row",
+            prefix: 'expectations'
+        });
+    </script>
+
+{% endblock %}

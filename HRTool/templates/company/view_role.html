@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block styles %}
+    <link rel="stylesheet" href="{% static 'theme/vendor/bootstrap-datepicker/css/bootstrap-datepicker3.min.css' %}">
+{% endblock %}
+{% block content %}
+    <div class="block-header">
+        <div class="row">
+            <div class="col-lg-6 col-md-6 col-sm-12">
+                <h2>
+                    <a href="javascript:void(0);" class="btn btn-xs btn-link btn-toggle-fullwidth">
+                        <i class="fa fa-arrow-left"></i>
+                    </a>
+                    {{ role.name }} Role
+                </h2>
+                <ul class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'dashboard' %}"><i class="icon-home"></i></a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'company:roles' %}">Manage Roles</a></li>
+                    <li class="breadcrumb-item active">{{ role.name }} Role</li>
+                </ul>
+            </div>
+{#            <div class="col-lg-6 col-md-3 col-sm-12 text-center">#}
+{#                {% if user.is_staff %}#}
+{#                    <form action="" method="get" class="form-horizontal">#}
+{#                        Tasks Report#}
+{#                        <div class="input-group mb-3 mt-3">#}
+{#                            <div class="input-daterange input-group" data-provide="datepicker">#}
+{#                                <input type="text" class="input-sm form-control" name="start" required>#}
+{#                                <span class="input-group-addon">to</span>#}
+{#                                <input type="text" class="input-sm form-control" name="end" required>#}
+{#                                <div class="input-group-append">#}
+{#                                    <button name="generate-tasks" type="submit" class="btn btn-default">Generate#}
+{#                                    </button>#}
+{#                                </div>#}
+{#                            </div>#}
+{##}
+{#                        </div>#}
+{#                    </form>#}
+{#                {% endif %}#}
+{#            </div>#}
+            <div class="col-lg-6 col-md-3 col-sm-12 text-center">
+                {% if user.is_staff %}
+                    <form action="" method="get" class="form-horizontal">
+                        KRA Report
+                        <div class="input-group mb-3 mt-3">
+                            <select name="bucket" class="custom-select" id="inputGroupSelect04">
+                                {% for bucket in role.company.kra_buckets.all %}
+                                    <option value="{{ bucket.reference }}">{{ bucket.title }}</option>
+                                {% endfor %}
+                            </select>
+                            <select name="rating" class="custom-select" id="inputGroupSelect05" required>
+                                <option value="">-- Select rating --</option>
+                                {% if role.company.config.ratings.count > 0 %}
+                                    <option value="all">All</option>
+                                {% endif %}
+                                {% for rating in role.company.config.ratings.all %}
+                                    <option value="{{ rating.pk }}">{{ rating.name }}</option>
+                                {% endfor %}
+                            </select>
+                            <div class="input-group-append">
+                                <button name="generate-kra" type="submit" class="btn btn-default">Generate</button>
+                            </div>
+                        </div>
+                    </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="row clearfix">
+        <div class="col-lg-12 col-md-12">
+            <div class="card planned_task">
+                <div class="header">
+                    <h2>{{ role.name }}'s Members ({{ role.members.count | default:0 }})</h2>
+                </div>
+                <div class="body">
+                    <table class="table table-stripped">
+                        <thead>
+                        <tr>
+                            <th>#</th>
+                            <th></th>
+                            <th>Name</th>
+                            <th>Manager</th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for member in role.members.all %}
+                            <tr>
+                                <td>{{ forloop.counter }}</td>
+                                <td>
+                                    <img src="{{ member.photo.url }}"
+                                         alt="{{ member }}'s photo"
+                                         class="rounded-circle" style="height: 80px; width: 80px"/>
+                                </td>
+                                <td>{{ member }}</td>
+                                <td>{{ member.manager }}</td>
+                                <td>
+                                    <a href="{{ member.get_absolute_url }}" class="btn btn-default">View</a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block scripts %}
+    <script src="{% static 'theme/vendor/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
+    <script src="{% static 'theme/js/pages/forms/advanced-form-elements.js' %}"></script>
+{% endblock %}

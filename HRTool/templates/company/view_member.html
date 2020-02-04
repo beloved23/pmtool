@@ -1,0 +1,373 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+    <div class="block-header">
+        <div class="row">
+            <div class="col-lg-5 col-md-8 col-sm-12">
+                <h2>
+                    <a href="javascript:void(0);" class="btn btn-xs btn-link btn-toggle-fullwidth">
+                        <i class="fa fa-arrow-left"></i>
+                    </a>
+                    View Member
+                </h2>
+                <ul class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'dashboard' %}"><i class="icon-home"></i></a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'company:members' %}">Manage Members</a></li>
+                    <li class="breadcrumb-item active">View Member</li>
+                </ul>
+            </div>
+            <div class="col-lg-7 col-md-4 col-sm-12 text-right">
+                {% if perms.account.can_add_profile or user.is_staff %}
+                    <a class="btn btn-default" href="{% url 'company:edit-member' pk=profile.pk %}">Edit</a>
+                {% endif %}
+                {% if perms.account.can_delete_profile or user.is_staff %}
+                    <button class="btn btn-danger" href="{% url 'company:delete-member' pk=profile.pk %}">Delete</button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="row clearfix">
+        <div class="col-lg-3 col-md-4 col-xs-12">
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="card planned_task">
+{#                        <div class="header">#}
+{#                            <h2>Member Information</h2>#}
+{#                        </div>#}
+                        <div class="body text-center">
+                            <img src="{{ profile.photo.url }}" alt="{{ profile }}'s photo" class="rounded-circle"
+                                 style="height: 100px; width: 100px"/>
+                            <br><br><br>
+                            <h6>{{ profile }}</h6>
+                            <div class="text-left">
+                                <hr>
+                                <small class="text-muted">Gender: </small>
+                                <p>{{ profile.gender }}</p>
+                                <hr>
+                                <small class="text-muted">Department: </small>
+                                <p>{{ profile.department }}</p>
+                                <hr>
+                                <small class="text-muted">Appointment Date: </small>
+                                <p>{{ profile.appointment_date }}</p>
+                                <hr>
+                                <small class="text-muted">Role: </small>
+                                <p>
+                                    {% if profile.is_ceo %}
+                                        CEO
+                                    {% elif profile.directing_department %}
+                                        Director
+                                    {% else %}
+                                        {{ profile.role | default:"-" }}
+                                    {% endif %}
+                                </p>
+                                <hr>
+                                <small class="text-muted">Email address: </small>
+                                <p>{{ profile.user.email }}</p>
+                                <hr>
+                                <small class="text-muted">Phone: </small>
+                                <p>{{ profile.phone }}</p>
+                                <hr>
+                                <small class="text-muted">Date Created: </small>
+                                <p>{{ profile.user.date_joined | date:"F d, Y" }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% if profile.manager %}
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="card planned_task">
+                            <div class="header">
+                                <h2>Manager</h2>
+                            </div>
+                            <div class="body text-center">
+                                <img src="{{ profile.manager.photo.url }}"
+                                                                 alt="{{ profile.manager }}'s photo"
+                                                                 class="rounded-circle" style="height: 100px; width: 100px"/>
+                                <br><br><br>
+                                <h6>{{ profile.manager }}</h6>
+                                <br><br>
+                                <a href="{{ profile.manager.get_absolute_url }}" class="btn btn-default">View</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+        <div class="col-lg-9 col-md-8 col-xs-12">
+            <div class="card planned_task">
+                <div class="header">
+                    <h2></h2>
+                </div>
+                <div class="body">
+                    <ul class="nav nav-tabs">
+                        <li class="nav-item"><a class="nav-link active show" data-toggle="tab" href="#Members">Team members ({{ profile.child_members.count | default:0 }})</a></li>
+                        <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#KRAs">KRAs ({{ profile.user.kras.count | default:0 }})</a></li>
+                        <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#PIPs">PIPs ({{ profile.user.pips.count | default:0 }})</a></li>
+                        <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#PIPsRaised">PIPs Raised ({{ profile.user.raised_pips.count | default:0 }})</a></li>
+                        <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#Tasks">Tasks ({{ profile.tasks.count | default:0 }})</a></li>
+                        <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#Permissions">Permissions ({{ profile.user.user_permissions.count }})</a></li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane show active" id="Members">
+                            <table class="table table-stripped">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th></th>
+                                        <th>Name</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for member in profile.child_members.all %}
+                                        <tr>
+                                            <td>{{ forloop.counter }}</td>
+                                            <td>
+                                                <img src="{{ member.photo.url }}"
+                                                         alt="{{ member }}'s photo"
+                                                         class="rounded-circle" style="height: 80px; width: 80px"/>
+                                            </td>
+                                            <td>{{ member }}</td>
+                                            <td>
+                                                <a href="{{ member.get_absolute_url }}" class="btn btn-default">View</a>
+                                            </td>
+                                        </tr>
+                                    {% empty %}
+                                        <tr>
+                                            <td colspan="4" class="text-center">
+                                                No Item to display
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="tab-pane" id="KRAs">
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <a href="{% url 'company:download_bulk_kra_report' pk=profile.pk %}" class="btn btn-lg btn-default">Download Report</a>
+                                </div>
+                            </div>
+                            <table class="table table-striped" role="table">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Bucket</th>
+                                        <th>Number of Items</th>
+                                        <th>Status</th>
+                                        <th>Date Created</th>
+                                        <th>Date Updated</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for kra in profile.user.kras.all %}
+                                        <tr>
+                                            <td>{{ forloop.counter }}</td>
+                                            <td>{{ kra.bucket.title }}</td>
+                                            <td>{{ kra.items.count }}</td>
+                                            <td>
+                                                {% if kra.is_accepted %}
+                                                    Accepted
+                                                {% elif kra.is_draft %}
+                                                    Draft
+                                                {% else %}
+                                                    {{ kra.status }}
+                                                {% endif %}
+                                            </td>
+                                            <td>{{ kra.date_created | date:"F d, Y" }}</td>
+                                            <td>{{ kra.date_updated | date:"F d, Y" | default_if_none:"-" }}</td>
+                                            <td>
+                                                <a href="{{ kra.get_absolute_url }}" class="btn btn-default">View</a>
+                                            </td>
+                                        </tr>
+                                    {% empty %}
+                                        <tr>
+                                            <td colspan="7" class="text-center">
+                                                No Item to display
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="tab-pane" id="PIPs">
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <a href="{% url 'company:download_bulk_pip_report' pk=profile.pk %}" class="btn btn-lg btn-default">Download Report</a>
+                                </div>
+                            </div>
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Description</th>
+                                        <th>Number of Issues</th>
+                                        <th>Number of Expectations</th>
+                                        <th>Raised By</th>
+                                        <th>Date Raised</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for pip in profile.user.pips.all %}
+                                        <tr>
+                                            <td>{{ forloop.counter }}</td>
+                                            <td>{{ pip.description }}</td>
+                                            <td>{{ pip.issues.count }}</td>
+                                            <td>{{ pip.expectations.count }}</td>
+                                            <td>{{ pip.line_manager.profile }}</td>
+                                            <td>{{ pip.date_created | date:"F d, Y H:i" }}</td>
+                                            <td>
+                                                <a href="{{ pip.get_absolute_url }}" class="btn btn-default">View</a>
+                                            </td>
+                                        </tr>
+                                    {% empty %}
+                                        <tr>
+                                            <td colspan="7" class="text-center">No item to display</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="tab-pane" id="PIPsRaised">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Description</th>
+                                        <th>Number of Issues</th>
+                                        <th>Number of Expectations</th>
+                                        <th>Raised For</th>
+                                        <th>Date Raised</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for pip in profile.user.raised_pips.all %}
+                                        <tr>
+                                            <td>{{ forloop.counter }}</td>
+                                            <td>{{ pip.description }}</td>
+                                            <td>{{ pip.issues.count }}</td>
+                                            <td>{{ pip.expectations.count }}</td>
+                                            <td>{{ pip.staff.profile }}</td>
+                                            <td>{{ pip.date_created | date:"F d, Y H:i" }}</td>
+                                            <td>
+                                                <a href="{{ pip.get_absolute_url }}" class="btn btn-default">View</a>
+                                            </td>
+                                        </tr>
+                                    {% empty %}
+                                        <tr>
+                                            <td colspan="7" class="text-center">No item to display</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="tab-pane" id="Tasks">
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <a href="{% url 'company:download_task_report' pk=profile.pk %}" class="btn btn-lg btn-default">Download Report</a>
+                                </div>
+                            </div>
+                            <ul class="list-unstyled feeds_widget">
+                                {% for task in profile.tasks.all %}
+                                    <li onclick='viewTask("{{ task.title }}", "{{ task.created_by }}", "{{ task.assigned_to }}", `{{ task.content | linebreaks }}`, "{{ task.duration }}hour{{ task.duration | pluralize }}", "{{ task.date_created | date:"F d, Y h:i A" }}", "{{ task.status }}", {% if task.status == 'Completed' %}"text-success"{% elif task.status == 'Cancelled' %}"text-danger"{% elif task.out_of_time %}"text-warning"{% else %}"text-primary"{% endif %});'>
+                                        <div class="feeds-left"><i class="fa fa-thumbs-o-up"></i></div>
+                                        <div class="feeds-body">
+                                            <h4 class="title">{{ task.title | title }} <small class="float-right text-muted">{{ task.date_created | timesince:now }}</small></h4>
+                                            <small>{{ task.content | truncatewords:"10" }}</small>
+                                            <small class={% if task.status == 'Completed' %}'text-success'{% elif task.status == 'Cancelled' %}'text-danger'{% elif task.out_of_time %}'text-warning'{% else %}'text-primary'{% endif %}>
+                                                {{ task.status }}
+                                            </small>
+                                        </div>
+                                    </li>
+                                {% empty %}
+                                    <p>No item to display</p>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        <div class="tab-pane" id="Permissions">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Permission</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for permission in profile.user.user_permissions.all %}
+                                        <tr>
+                                            <td>{{ forloop.counter }}</td>
+                                            <td>{{ permission }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Default Size -->
+    <div class="modal fade" id="viewtask" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="title" id="defaultModalLabel">View Task</h4>
+                </div>
+                <div class="modal-body">
+                    <table class="table table-striped">
+                        <tr>
+                            <th class="text-center">Created By:</th>
+                            <td class="text-center" id="created_by"></td>
+                        </tr>
+                        <tr>
+                            <th class="text-center">Assigned To:</th>
+                            <td class="text-center" id="assigned_to"></td>
+                        </tr>
+                        <tr>
+                            <th class="text-center">Title:</th>
+                            <td class="text-center" id="title"></td>
+                        </tr>
+                        <tr>
+                            <th class="text-center">Description:</th>
+                            <td class="text-center" id="description"></td>
+                        </tr>
+                        <tr>
+                            <th class="text-center">Duration:</th>
+                            <td class="text-center" id="duration"></td>
+                        </tr>
+                        <tr>
+                            <th class="text-center">Date Created:</th>
+                            <td class="text-center" id="date_created"></td>
+                        </tr>
+                        <tr>
+                            <th class="text-center">Status:</th>
+                            <td class="text-center" id="status"></td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-simple" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block scripts %}
+    <script>
+        function viewTask(title, created_by, assigned_to, description, duration, date_created, status, cls) {
+            $("#viewtask #title").text(title);
+            $("#viewtask #created_by").text(created_by);
+            $("#viewtask #assigned_to").text(assigned_to);
+            $("#viewtask #description").html(description);
+            $("#viewtask #duration").text(duration);
+            $("#viewtask #date_created").text(date_created);
+            $("#viewtask #status").html("<span class='"+cls+"'>"+status+"</span>");
+            $("#viewtask").modal();
+        };
+    </script>
+{% endblock %}

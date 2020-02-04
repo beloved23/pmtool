@@ -1,0 +1,158 @@
+{% extends 'admin-base.html' %}
+{% load static %}
+{% load humanize %}
+{% block styles %}
+    <link rel="stylesheet" href="{% static 'theme/vendor/chartist/css/chartist.min.css' %}"/>
+    <link rel="stylesheet" href="{% static 'theme/vendor/chartist-plugin-tooltip/chartist-plugin-tooltip.css' %}"/>
+{% endblock %}
+{% block content %}
+
+    <div class="row clearfix">
+        <div class="col-lg-3 col-md-6">
+            <div class="card top_counter">
+                <div class="body">
+                    <div class="icon"><i class="icon-grid"></i> </div>
+                    <div class="content">
+                        <div class="text">Total Companies</div>
+                        <h5 class="number">{{ total_companies | intcomma }}</h5>
+                    </div>
+                    <hr>
+                    <div class="icon"><i class="fa fa-list"></i> </div>
+                    <div class="content">
+                        <div class="text">Total Plans</div>
+                        <h5 class="number">{{ plans.count }}</h5>
+                    </div>
+                </div>
+            </div>
+            <div class="card top_counter">
+                <div class="body">
+                    <div class="icon"><i class="fa fa-user-secret"></i> </div>
+                    <div class="content">
+                        <div class="text">Total Superusers</div>
+                        <h5 class="number">{{ total_superusers }}</h5>
+                    </div>
+                    <hr>
+                    <div class="icon"><i class="fa fa-users"></i> </div>
+                    <div class="content">
+                        <div class="text">Total Users</div>
+                        <h5 class="number">{{ total_users |floatformat:0|intcomma }}</h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+            <div class="card text-center">
+                <div class="body">
+                    <h5>Plans Analysis</h5>
+{#                    <span>8% High then last month</span>#}
+                    <div class="sparkline-pie m-t-20">
+                        {% for plan in plans %}{{ plan.usage.count }}{% if not forloop.last %},{% endif %}{% endfor %}
+                    </div>
+                    <div class="stats-report m-b-30">
+                        {% for plan in plans %}
+                            <div class="stat-item">
+                                <h5>{{ plan.name | title }}</h5>
+                                <b class="col-black">{{ plan.get_weight }}%</b>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6 col-md-12">
+            <div class="card">
+                <div class="header">
+                    <h2>Companies Statistics</h2>
+                </div>
+                <div class="body">
+                    <div id="Company_Statistics" class="chartist"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8 col-md-7">
+            <div class="card">
+                <div class="header">
+                    <h2>Recently Added Companies</h2>
+                </div>
+                <div class="body">
+                    <div class="table-responsive">
+                        <table class="table table-hover m-b-0">
+                            <thead class="thead-dark">
+                                <tr>
+                                    <th></th>
+                                    <th>Name</th>
+                                    <th>Plan</th>
+                                    <th>Status</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for recent_company in recent_companies %}
+                                    <tr>
+                                        <td>
+                                            {% if recent_company.config.logo %}
+                                                <img src="{{ recent_company.config.logo.url }}" class="rounded-circle width35" alt="">
+                                            {% else %}
+                                                <img src="{% static 'theme/images/xs/avatar1.jpg' %}" class="rounded-circle width35" alt="">
+                                            {% endif %}
+
+                                        </td>
+                                        <td>{{ recent_company.name | title }}</td>
+                                        <td><span>{% if recent_company.plan %}{{ recent_company.plan }}{% else %}-{% endif %}</span></td>
+                                        <td>
+                                            {% if recent_company.is_active %}
+                                                {% if recent_company.expires_soon %}
+                                                    <span class="badge badge-warning">Expires soon</span>
+                                                {% else %}
+                                                    <span class="badge badge-success">Active</span>
+                                                {% endif %}
+                                            {% else %}
+                                                <span class="badge badge-danger">Inactive</span>
+                                            {% endif %}
+
+                                        </td>
+                                        <td><a class="btn btn-default" href="{{ recent_company.get_absolute_url }}">View</a></td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4 col-md-5">
+            <div class="card">
+                <div class="header">
+                    <h2>Companies Analysis</h2>
+                </div>
+                <div class="body text-center">
+                    <h6>Active</h6>
+                    <input type="text" class="knob2" data-linecap="round" value="{{ active_companies_analysis }}" data-width="125" data-height="125" data-thickness="0.15" data-fgColor="#00aa00" readonly>
+                    <hr>
+                    <h6>Inactive</h6>
+                    <input type="text" class="knob2" data-linecap="round" value="{{ inactive_companies_analysis }}" data-width="125" data-height="125" data-thickness="0.15" data-fgColor="#ff0000" readonly>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block scripts %}
+    <script>
+        let COMPANIES_STATS_LABELS = [
+            {% for companies_analysis_label in companies_analysis_labels %}
+                "{{ companies_analysis_label }}",
+            {% endfor %}
+        ];
+        let COMPANIES_STATS_VALUES = [
+            {% for companies_analysis_value in companies_analysis_values %}
+                {{ companies_analysis_value }},
+            {% endfor %}
+        ];
+    </script>
+    <script src="{% static 'theme/bundles/chartist.bundle.js' %}"></script>
+    <script src="{% static 'theme/bundles/knob.bundle.js' %}"></script>
+    <script src="{% static 'theme/js/index.js' %}"></script>
+{% endblock %}

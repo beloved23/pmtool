@@ -1,0 +1,74 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+{#    <meta name="viewport" content="width=1200">#}
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="{% static 'css/login_fonts.css' %}">
+    <link href="{% static 'css/login.css' %}" rel="stylesheet">
+    <title>Log in</title>
+    {% if company %}
+        <style>
+            {% if company.config.theme %}
+                a{
+                    color: {{ company.config.theme }};
+                }
+            {% endif %}
+            {% if company.config.background_image %}
+                .container {
+                    background-image: url({{ company.config.background_image.url }});
+                }
+            {% endif %}
+        </style>
+    {% endif %}
+</head>
+
+<body>
+<div class="container">
+    <div class="login-container">
+        <div class="login-content login-content-image">
+            <img src="#" alt="">
+        </div>
+        <div class="login-content">
+            <div class="login">
+                <form action="" method="post">
+                    {% csrf_token %}
+                    {% if company %}
+                        {% if company.config.logo %}
+                            <img class="logoimage" src="{{ company.config.logo.url }}" alt="" style="margin: 20px auto; width: 120px; height: auto">
+                        {% else %}
+                            <img class="logoimage" src="{% static 'images/logo.png' %}" alt="" style="margin: 20px auto; width: 120px; height: auto">
+                        {% endif %}
+                    {% else %}
+                        <img class="logoimage" src="{% static 'images/logo.png' %}" alt="" style="margin: 20px auto; width: 120px; height: auto">
+                    {% endif %}
+                    {% if form.non_field_errors %}
+                        {{ form.non_field_errors }}
+                    {% endif %}
+                    {{ form.username }}
+                    {{ form.username.errors }}
+                    {{ form.password }}
+                    {{ form.password.errors }}
+                    {% if company %}
+                        <input type="hidden" name="company_identity" value="{{ company.identifier }}">
+                    {% else %}
+                        {{ form.company_identity }}
+                        {{ form.company_identity.errors }}
+                    {% endif %}
+                    <button type="submit" {% if company.config.theme %}style="background-color: {{ company.config.theme }}"{% endif %}>LOG IN</button>
+                    <div class="label-checkbox">
+                        <div></div>
+{#                        <a href="#">Forgot Password</a>#}
+                    </div>
+                </form>
+            </div>
+
+
+        </div>
+    </div>
+</div>
+</body>
+</html>
